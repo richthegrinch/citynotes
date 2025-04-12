@@ -206,12 +206,20 @@ export default function App() {
   useEffect(() => {
     const fetchEntries = async () => {
       const snapshot = await getDocs(collection(db, "entries"));
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setEntries(data);
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        fromSession: false, // ✅ Mark as NOT from this session
+      }));
+          setEntries(data);
     };
   
     fetchEntries();
   }, []);
+
+
+
+
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -236,8 +244,14 @@ export default function App() {
       fromSession: true,
     };
   
-    const docRef = await addDoc(collection(db, "entries"), newEntry);
-    setEntries(prev => [...prev, { ...newEntry, id: docRef.id }]);
+
+    const entryToSave = { ...newEntry };
+    delete entryToSave.fromSession;
+
+    const docRef = await addDoc(collection(db, "entries"), entryToSave);
+    setEntries((prev) => [...prev, { ...newEntry, id: docRef.id }]);
+
+
     resetForm();
   };
   
@@ -306,6 +320,11 @@ export default function App() {
         tap = {false}
         closePopupOnClick = {false}
         style={{ height: "100%", width: "100%" }}
+        maxBounds={[
+          [38.7, -77.3], // Southwest corner
+          [39.2, -76.5], // Northeast corner
+        ]}
+        maxBoundsViscosity={1.0}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
