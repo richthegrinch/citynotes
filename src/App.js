@@ -33,10 +33,6 @@ const moodIcons = {
   default: new L.DivIcon({ html: "📍", className: "emoji-icon", iconSize: [30, 30] }),
 };
 
-
-// import L from "leaflet";
-// import "leaflet-control-geocoder";
-
 //Search bar function
 function GeocoderControl() {
   const map = useMap();
@@ -85,42 +81,15 @@ function EditableMarker({
   setMood,
   moodIcons,
 }) {
-  // const popupRef = useRef();
-
-  // useEffect(() => {
-  //   if (isEditing && popupRef.current) {
-  //     console.log("Opening popup for editing entry:", entry.id);
-  //     popupRef.current.openOn(popupRef.current._map);
-  //   } else {
-  //     console.log("Popup ref not ready or not editing");
-  //   }
-  // }, [isEditing]);
   const justOpenedRef = useRef(false);
   const handlePopupOpen = () => {
     console.log("Popup opened for entry", entry.id); // Debug: Popup opened
     justOpenedRef.current = true;
   };
-  // const handlePopupClose = () => {
-  //   if (justOpenedRef.current) {
-  //     console.log("Popup close ignored due to just opened for entry", entry.id); // Debug: Popup close ignored
-  //   } else {
-  //     console.log("Popup closed for entry", entry.id); // Debug: Popup closed
-  //     onClose(entry.id); // Optional: Trigger onClose if needed
-  //   }
-  // };
   const handleFormSubmit = (e) => {
     e.preventDefault();
     onUpdate(noteText, mood); // Update the memory
   };
-  // useEffect(() => {
-  //   if (isEditing) {
-  //     justOpenedRef.current = true;
-  //     setTimeout(() => {
-  //       justOpenedRef.current = false;
-  //       console.log("Popup opening timeout completed for entry", entry.id);
-  //     }, 100); // small delay so we don’t treat auto-close as user close
-  //   }
-  // }, [isEditing]);
 
   return (
     <Marker
@@ -128,16 +97,6 @@ function EditableMarker({
       icon={moodIcons[entry.mood] || moodIcons.default}
       eventHandlers={{
         popupopen: handlePopupOpen, // Directly handling popup open
-        // popupclose: handlePopupClose, // Directly handling popup close
-        // popupclose: () => {
-        //   console.log("Popup close event triggered for entry", entry.id);
-        //   if (isEditing && !justOpenedRef.current) {
-        //     console.log("Popup is closing after being opened by the user for entry", entry.id); // Debug: Confirming user-triggered close
-        //     onClose(); // Close only if editing and it wasn’t just opened
-        //   } else {
-        //     console.log("Popup close ignored due to just opened for entry", entry.id); // Debug: Ignored close
-        //   }
-        // },
       }}
     >
       <Popup open={isEditing}>
@@ -236,26 +195,6 @@ export default function App() {
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
-      <button
-        onClick={() => {
-          setIsAdding(true);
-          alert("Click on the map to drop your memory 🌱");
-        }}
-        style={{
-          position: "absolute",
-          top: "1rem",
-          right: "1rem",
-          zIndex: 1000,
-          padding: "0.5rem 1rem",
-          background: "green",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-        }}
-      >
-        Plant a Memory 🌱
-      </button>
 
       <MapContainer
         center={[38.9869, -76.9426]}
@@ -271,7 +210,46 @@ export default function App() {
         />
 
         {/* Search bar */}
-        <GeocoderControl /> 
+        <div
+          style={{
+            position: "absolute",
+            top: "1rem",
+            right: "1rem",
+            zIndex: 1000,
+          }}
+        >
+          <GeocoderControl
+            position="topright"
+          />
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            top: "3.5rem", // below the search
+            right: "1rem",
+            zIndex: 999,
+          }}
+        >
+          <button
+            onClick={() => {
+              setIsAdding(true);
+              alert("Click on the map to drop a note 📜");
+            }}
+            style={{
+              padding: "0.5rem 1rem",
+              background: "green",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              whiteSpace: "nowrap", // 💡 prevent line breaks
+              fontSize: "1rem", // optional: make text more readable
+            }}
+          >
+            Drop a Note 📜
+        </button>
+        </div>
 
         <Marker position={[38.9869, -76.9426]}>
           <Popup>This is UMD Chapel Garden 🌼</Popup>
