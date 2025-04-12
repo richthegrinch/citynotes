@@ -201,6 +201,42 @@ export default function App() {
   const [noteText, setNoteText] = useState("");
   const [mood, setMood] = useState("happy");
   const [editingId, setEditingId] = useState(null);
+  const mapRef = useRef();
+
+  const [minZoom, setMinZoom] = useState(2);
+
+useEffect(() => {
+  const calculateMinZoom = () => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const bounds = map.getBounds(); // current visible bounds
+    const worldBounds = L.latLngBounds([[-85, -180], [85, 180]]); // entire map
+
+    const requiredZoom = map.getBoundsZoom(worldBounds, false);
+    setMinZoom(requiredZoom);
+  };
+
+  if (mapRef.current) {
+    calculateMinZoom();
+  }
+}, []);
+
+useEffect(() => {
+  const handleResize = () => {
+    if (mapRef.current) {
+      const worldBounds = L.latLngBounds([[-85, -180], [85, 180]]);
+      const zoom = mapRef.current.getBoundsZoom(worldBounds, false);
+      setMinZoom(zoom);
+    }
+  };
+
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
+
+
 
   //HELLO
   useEffect(() => {
@@ -317,14 +353,15 @@ export default function App() {
         center={[38.9869, -76.9426]}
         zoom={15}
         scrollWheelZoom={true}
+        minZoom={minZoom}
         tap = {false}
         closePopupOnClick = {false}
         style={{ height: "100%", width: "100%" }}
         maxBounds={[
-          [38.7, -77.3], // Southwest corner
-          [39.2, -76.5], // Northeast corner
+          [-85, -180],
+          [85, 180],
         ]}
-        maxBoundsViscosity={1.0}
+        maxBoundsViscosity={1.0} 
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
