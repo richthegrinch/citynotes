@@ -11,6 +11,11 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
 
+// For search bar
+import "leaflet-control-geocoder/dist/Control.Geocoder.css";
+import "leaflet-control-geocoder";
+import { useMap } from "react-leaflet";
+
 // Fix leaflet marker icon issues
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -27,6 +32,36 @@ const moodIcons = {
   calm: new L.DivIcon({ html: "🌿", className: "emoji-icon", iconSize: [30, 30] }),
   default: new L.DivIcon({ html: "📍", className: "emoji-icon", iconSize: [30, 30] }),
 };
+
+
+// import L from "leaflet";
+// import "leaflet-control-geocoder";
+
+//Search bar function
+function GeocoderControl() {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map) return;
+
+    const geocoder = L.Control.geocoder({
+      defaultMarkGeocode: false,
+    })
+      .on("markgeocode", function (e) {
+        const bbox = e.geocode.bbox;
+        const bounds = L.latLngBounds(bbox);
+        map.fitBounds(bounds);
+      })
+      .addTo(map);
+
+    return () => {
+      geocoder.remove();
+    };
+  }, [map]);
+
+  return null;
+}
+
 
 function AddMarkerOnClick({ isAdding, onMapClick }) {
   useMapEvent("click", (e) => {
@@ -234,6 +269,9 @@ export default function App() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
         />
+
+        {/* Search bar */}
+        <GeocoderControl /> 
 
         <Marker position={[38.9869, -76.9426]}>
           <Popup>This is UMD Chapel Garden 🌼</Popup>
