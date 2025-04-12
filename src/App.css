@@ -59,3 +59,12 @@ html, body, #root {
   hyphens: auto;
   overflow-wrap: anywhere;
 }
+
+/* .map-crosshair {
+  cursor: crosshair !important;
+  color: "red"
+} */
+
+.map-crosshair {
+  cursor: url("/cursor.cur") 16 16, auto !important;
+}

@@ -243,6 +243,8 @@ export default function App() {
   const [minZoom, setMinZoom] = useState(2);
   const [selectedMood, setSelectedMood] = useState("all");
   const [searchText, setSearchText] = useState("");
+  const [showDropNoteModal, setShowDropNoteModal] = useState(false);
+  const [dontShowAgainChecked, setDontShowAgainChecked] = useState(false);
 
 
 useEffect(() => {
@@ -288,6 +290,25 @@ useEffect(() => {
   
     fetchEntries();
   }, []);
+
+  useEffect(() => {
+    const mapContainer = document.querySelector(".leaflet-container");
+  
+    if (mapContainer) {
+      if (isAdding) {
+        mapContainer.classList.add("map-crosshair");
+      } else {
+        mapContainer.classList.remove("map-crosshair");
+      }
+    }
+  
+    // clean up just in case
+    return () => {
+      if (mapContainer) {
+        mapContainer.classList.remove("map-crosshair");
+      }
+    };
+  }, [isAdding]);
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -384,7 +405,70 @@ useEffect(() => {
           onChange={(e) => setSearchText(e.target.value)}
           style={{ padding: "4px", borderRadius: "4px", border: "none" }}
         />
+
+{showDropNoteModal && (
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 2000,
+    }}
+  >
+    <div
+      style={{
+        background: "white",
+        padding: "20px",
+        borderRadius: "8px",
+        maxWidth: "400px",
+        width: "90%",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+        textAlign: "center",
+      }}
+    >
+      <p style={{color: "black"}}>📍 Click anywhere on the map to drop a note!</p>
+      <label style={{ fontSize: "0.9rem", color: "black"}}>
+        <input
+          type="checkbox"
+          checked={dontShowAgainChecked}
+          onChange={(e) => setDontShowAgainChecked(e.target.checked)}
+        />
+        {" "}Don't show this again during this session
+      </label>
+      <br />
+      <button
+        style={{
+          marginTop: "10px",
+          padding: "0.4rem 1rem",
+          background: "green",
+          color: "white",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer",
+        }}
+        onClick={() => {
+          if (dontShowAgainChecked) {
+            sessionStorage.setItem("hideDropNotePopup", "true");
+          }
+          setIsAdding(true); // 🟢 Start the drop
+          setShowDropNoteModal(false); // 🔴 Close modal
+        }}
+      >
+        Got it!
+      </button>
+    </div>
+  </div>
+)}
+
       </div>
+
+      
 
       <MapContainer
         center={[38.9869, -76.9426]}
@@ -427,23 +511,28 @@ useEffect(() => {
           }}
         >
           <button
-            onClick={() => {
-              setIsAdding(true);
-              alert("Click on the map to drop a note 📜");
-            }}
-            style={{
-              padding: "0.5rem 1rem",
-              background: "green",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-              fontSize: "1rem", 
-            }}
-          >
-            Drop a Note 📜
-        </button>
+  onClick={() => {
+    const hidePopup = sessionStorage.getItem("hideDropNotePopup") === "true";
+    if (hidePopup) {
+      setIsAdding(true);
+    } else {
+      setShowDropNoteModal(true);
+    }
+  }}
+  style={{
+    padding: "0.5rem 1rem",
+    background: "green",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    fontSize: "1rem",
+  }}
+>
+  Drop a Note 📜
+</button>
+
         </div>
 
         {isAdding && (
