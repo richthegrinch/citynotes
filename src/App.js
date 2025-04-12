@@ -30,7 +30,7 @@ import {
 
 
 //CONSTANTS
-const MAX_WORDS = 12;
+//const MAX_WORDS = 12;
 const MAX_CHARACTERS = 70;
 
 // icons
@@ -51,9 +51,9 @@ const moodIcons = {
 };
 
 //word limit
-const getWordCount = (text) => {
-  return text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
-};
+// const getWordCount = (text) => {
+//   return text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
+// };
 
 
 
@@ -110,13 +110,13 @@ function EditableMarker({
 }) {
   const justOpenedRef = useRef(false);
   const handlePopupOpen = () => {
-    console.log("Popup opened for entry", entry.id); // Debug: Popup opened
+    console.log("Popup opened for entry", entry.id);
     justOpenedRef.current = true;
   };
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (
-      getWordCount(noteText) > MAX_WORDS ||
+      // getWordCount(noteText) > MAX_WORDS ||
       noteText.length > MAX_CHARACTERS
     ) {
       alert("Your entry is too long. Please shorten it.");
@@ -130,7 +130,7 @@ function EditableMarker({
       position={[entry.lat, entry.lng]}
       icon={moodIcons[entry.mood] || moodIcons.default}
       eventHandlers={{
-        popupopen: handlePopupOpen, // Directly handling popup open
+        popupopen: handlePopupOpen,
       }}
     >
       <Popup open={isEditing}>
@@ -146,8 +146,9 @@ function EditableMarker({
               value={noteText}
               onChange={(e) => {
                 const text = e.target.value;
-                const words = getWordCount(text);
-                if (words <= MAX_WORDS && text.length <= MAX_CHARACTERS) {
+                // const words = getWordCount(text);
+                if (text.length <= MAX_CHARACTERS) {
+                //if (words <= MAX_WORDS && text.length <= MAX_CHARACTERS) {
                   setNoteText(text);
                 }
               }}
@@ -155,8 +156,10 @@ function EditableMarker({
               style={{ width: "100%" }}
               //required
             />
-            <small style={{ color: noteText.length >= MAX_CHARACTERS || getWordCount(noteText) >= MAX_WORDS ? "red" : "gray" }}>
-              {getWordCount(noteText)} / {MAX_WORDS} words • {noteText.length} / {MAX_CHARACTERS} characters
+            {/* <small style={{ color: noteText.length >= MAX_CHARACTERS || getWordCount(noteText) >= MAX_WORDS ? "red" : "gray" }}> */}
+            <small style={{ color: noteText.length >= MAX_CHARACTERS? "red" : "gray" }}>
+              {noteText.length} / {MAX_CHARACTERS} characters
+              {/* {getWordCount(noteText)} / {MAX_WORDS} words • {noteText.length} / {MAX_CHARACTERS} characters */}
             </small>
 
             <select value={mood} onChange={(e) => setMood(e.target.value)}>
@@ -207,8 +210,8 @@ useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    const bounds = map.getBounds(); // current visible bounds
-    const worldBounds = L.latLngBounds([[-85, -180], [85, 180]]); // entire map
+    const bounds = map.getBounds();
+    const worldBounds = L.latLngBounds([[-85, -180], [85, 180]]);
 
     const requiredZoom = map.getBoundsZoom(worldBounds, false);
     setMinZoom(requiredZoom);
@@ -232,10 +235,6 @@ useEffect(() => {
   return () => window.removeEventListener("resize", handleResize);
 }, []);
 
-
-
-
-  //HELLO
   useEffect(() => {
     const fetchEntries = async () => {
       const snapshot = await getDocs(collection(db, "entries"));
@@ -250,23 +249,27 @@ useEffect(() => {
     fetchEntries();
   }, []);
 
-
-
-
-
   const handleSave = async (e) => {
     e.preventDefault();
   
-    const wordCount = getWordCount(noteText);
+    // const wordCount = getWordCount(noteText);
     const charCount = noteText.length;
   
-    if (wordCount > MAX_WORDS || charCount > MAX_CHARACTERS) {
+    if (charCount > MAX_CHARACTERS) {
       alert(
-        `Your entry is too long.\n\nWord limit: ${wordCount}/${MAX_WORDS}\nCharacter limit: ${charCount}/${MAX_CHARACTERS}`
+        `Your entry is too long.\n\nCharacter limit: ${charCount}/${MAX_CHARACTERS}`
       );
-      return; // ❌ Stop here if it’s over the limit
+      return; 
     }
   
+    // if (wordCount > MAX_WORDS || charCount > MAX_CHARACTERS) {
+    //   alert(
+    //     `Your entry is too long.\n\nWord limit: ${wordCount}/${MAX_WORDS}\nCharacter limit: ${charCount}/${MAX_CHARACTERS}`
+    //   );
+    //   return;
+    // }
+  
+    
     
     const newEntry = {
       lat: tempMarker.lat,
@@ -326,7 +329,6 @@ useEffect(() => {
           attribution="&copy; OpenStreetMap contributors"
         />
 
-        {/* Search bar */}
         <div
           style={{
             position: "absolute",
@@ -343,7 +345,7 @@ useEffect(() => {
         <div
           style={{
             position: "absolute",
-            top: "3.5rem", // below the search
+            top: "3.5rem",
             right: "1rem",
             zIndex: 999,
           }}
@@ -360,8 +362,8 @@ useEffect(() => {
               border: "none",
               borderRadius: "8px",
               cursor: "pointer",
-              whiteSpace: "nowrap", // 💡 prevent line breaks
-              fontSize: "1rem", // optional: make text more readable
+              whiteSpace: "nowrap",
+              fontSize: "1rem", 
             }}
           >
             Drop a Note 📜
@@ -432,8 +434,8 @@ useEffect(() => {
                   value={noteText}
                   onChange={(e) => {
                     const text = e.target.value;
-                    const words = getWordCount(text);
-                    if (words <= MAX_WORDS && text.length <= MAX_CHARACTERS) {
+                    //const words = getWordCount(text);
+                    if (text.length <= MAX_CHARACTERS) {
                       setNoteText(text);
                     }
                   }}
@@ -441,8 +443,8 @@ useEffect(() => {
                   rows={3}
                   style={{ width: "100%" }}
                 />
-                <small style={{ color: noteText.length >= MAX_CHARACTERS || getWordCount(noteText) >= MAX_WORDS ? "red" : "gray" }}>
-                  {getWordCount(noteText)} / {MAX_WORDS} words • {noteText.length} / {MAX_CHARACTERS} characters
+                <small style={{ color: noteText.length >= MAX_CHARACTERS ? "red" : "gray" }}>
+                  {noteText.length} / {MAX_CHARACTERS} characters
                 </small>
 
                 <select value={mood} onChange={(e) => setMood(e.target.value)}>
