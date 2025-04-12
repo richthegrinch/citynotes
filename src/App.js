@@ -10,6 +10,7 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
+import SideMenu from "./SideMenu";
 
 // For search bar
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
@@ -202,6 +203,7 @@ export default function App() {
   const [mood, setMood] = useState("happy");
   const [editingId, setEditingId] = useState(null);
   const mapRef = useRef();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [minZoom, setMinZoom] = useState(2);
 
@@ -344,10 +346,56 @@ useEffect(() => {
     setEntries((prev) => prev.filter((entry) => entry.id !== id));
     resetForm();
   };
-  
 
+  const toggleMenu = () => {
+    setIsMenuOpen(prev => !prev);
+  };
+  
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
+      /*Toggle button for the menu*/
+      <button
+        onClick={toggleMenu}
+        style={{
+          position: "absolute",
+          top: "1rem",
+          left: "1rem",
+          zIndex: 1100,
+          background: "white",
+          border: "none",
+          borderRadius: "5px",
+          padding: "0.5rem 1rem",
+          boxShadow: "0 2px 5px rgba(0,0,0,0.3)",
+          fontSize: "1.2rem",
+          cursor: "pointer"
+        }}
+      >
+        {isMenuOpen ? "✖" : "☰"}
+      </button>
+      
+      /*Side Menu*/
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          height: "100%",
+          width: "250px",
+          backgroundColor: "white",
+          transform: isMenuOpen ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 0.3s ease-in-out",
+          zIndex: 1050,
+          boxShadow: isMenuOpen ? "2px 0 5px rgba(0,0,0,0.3)" : "none",
+          padding: "1rem"
+        }}
+      >
+        <h3>My Menu</h3>
+        <ul>
+          <li>Layer 1</li>
+          <li>Layer 2</li>
+          <li>Settings</li>
+        </ul>
+      </div>
 
       <MapContainer
         center={[38.9869, -76.9426]}
@@ -506,4 +554,5 @@ useEffect(() => {
       </MapContainer>
     </div>
   );
+
 }
