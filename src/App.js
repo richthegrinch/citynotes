@@ -25,6 +25,11 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
+import happyIcon from "./assets/happy.gif";
+import cryingIcon from "./assets/crying.gif";
+import danceFloorIcon from "./assets/dance-floor.gif";
+import chillIcon from "./assets/relaxed.gif";
+import flirtyIcon from "./assets/flirty.gif";
 
 
 
@@ -41,12 +46,43 @@ L.Icon.Default.mergeOptions({
 
 // Mood icons
 const moodIcons = {
-  happy: new L.DivIcon({ html: "😊", className: "emoji-icon", iconSize: [30, 30] }),
-  sad: new L.DivIcon({ html: "😢", className: "emoji-icon", iconSize: [30, 30] }),
-  excited: new L.DivIcon({ html: "🎉", className: "emoji-icon", iconSize: [30, 30] }),
-  calm: new L.DivIcon({ html: "🌿", className: "emoji-icon", iconSize: [30, 30] }),
-  default: new L.DivIcon({ html: "📍", className: "emoji-icon", iconSize: [30, 30] }),
+  happy: new L.Icon({
+    iconUrl: happyIcon,
+    iconSize: [60, 60],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+  }),
+  sad: new L.Icon({
+    iconUrl: cryingIcon,
+    iconSize: [60, 60],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+  }),
+  lively: new L.Icon({
+    iconUrl: danceFloorIcon,
+    iconSize: [60, 60],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+  }),
+  calm: new L.Icon({
+    iconUrl: chillIcon,
+    iconSize: [60, 60],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+  }),
+  romantic: new L.Icon({
+    iconUrl: flirtyIcon,
+    iconSize: [60, 60],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+  }),
+  default: new L.DivIcon({
+    html: "📍",
+    className: "emoji-icon",
+    iconSize: [30, 30],
+  }),
 };
+
 
 
 const getWordCount = (text) => {
@@ -494,8 +530,9 @@ useEffect(() => {
                 <select value={mood} onChange={(e) => setMood(e.target.value)}>
                   <option value="happy">😊 Happy</option>
                   <option value="sad">😢 Sad</option>
-                  <option value="excited">🎉 Excited</option>
+                  <option value="lively">🎉 Lively</option>
                   <option value="calm">🌿 Calm</option>
+                  <option value="romantic">🥰 Romantic</option>
                 </select>
                 <br />
                 <button type="submit">Save</button>
