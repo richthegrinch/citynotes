@@ -350,7 +350,6 @@ useEffect(() => {
   
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
-      /*Toggle button for the menu*/
       <button
         onClick={toggleMenu}
         style={{
@@ -370,28 +369,79 @@ useEffect(() => {
         {isMenuOpen ? "✖" : "☰"}
       </button>
       
-      /*Side Menu*/
       <div
         style={{
           position: "absolute",
           top: 0,
-          left: 0,
-          height: "100%",
+          right: 0,
+          height: "60%",
           width: "250px",
-          backgroundColor: "white",
-          transform: isMenuOpen ? "translateX(0)" : "translateX(-100%)",
+          backgroundColor: "rgb(232, 250, 128)",
+          color: "rgb(77, 77, 77)",
+          border: "5px solid rgb(148, 201, 96)",
+          transform: isMenuOpen ? "translateX(0)" : "translateX(100%)",
           transition: "transform 0.3s ease-in-out",
           zIndex: 1050,
-          boxShadow: isMenuOpen ? "2px 0 5px rgba(0,0,0,0.3)" : "none",
-          padding: "1rem"
+          boxShadow: isMenuOpen ? "-2px 0 10px rgb(232, 250, 128)" : "none",
+          padding: "1rem",
+          borderRadius: "10px 0 0 10px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+          alignItems: "left"
         }}
       >
-        <h3>My Menu</h3>
-        <ul>
-          <li>Layer 1</li>
-          <li>Layer 2</li>
-          <li>Settings</li>
-        </ul>
+        <h3 style={{ fontWeight: "bold" }}>~~~ CityNote ~~~</h3>
+        
+        <div>
+          <button
+            onClick={() => {
+              setIsAdding(true);
+              alert("Hi! Welcome to CityNote!\nClick the add note button then the map to add a note. Once the note is added, click it again to add a caption and choose your mood. Then hit save to save the note.\nYou can edit or delete the note later, but once you leave the site and come back you cannot, so post wisely!");
+            }}
+            style={{
+              padding: "0.5rem 1rem",
+              background: "rgb(148, 201, 96)",
+              color: "rgb(77, 77, 77)",
+              border: "3px solid rgb(232, 250, 128)",
+              borderRadius: "10px",
+              boxShadow: "0 0 0 5px rgb(148, 201, 96)",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              fontSize: "1rem",
+            }}>
+            how to use
+          </button>
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            top: "3.5rem",
+            right: "1rem",
+            zIndex: 999,
+          }}
+        >
+          <button
+            onClick={() => {
+              setIsAdding(true);
+              alert("Click on the map to drop a note 📜");
+            }}
+            style={{
+              padding: "0.5rem 1rem",
+              background: "rgb(148, 201, 96)",
+              color: "rgb(77, 77, 77)",
+              border: "3px solid rgb(232, 250, 128)",
+              borderRadius: "10px",
+              boxShadow: "0 0 0 5px rgb(148, 201, 96)",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              fontSize: "1rem",
+            }}
+          >
+            add note 📜
+        </button>
+        </div>
       </div>
 
       <MapContainer
@@ -424,35 +474,6 @@ useEffect(() => {
           <GeocoderControl
             position="topright"
           />
-        </div>
-
-        <div
-          style={{
-            position: "absolute",
-            top: "3.5rem",
-            right: "1rem",
-            zIndex: 999,
-          }}
-        >
-          <button
-            onClick={() => {
-              setIsAdding(true);
-              alert("Click on the map to drop a note 📜");
-            }}
-            style={{
-              padding: "0.5rem 1rem",
-              background: "rgb(148, 201, 96)",
-              color: "rgb(77, 77, 77)",
-              border: "5px solid rgb(232, 250, 128)",
-              borderRadius: "8px",
-              boxShadow: "0 0 0 5px rgb(148, 201, 96)",
-              cursor: "pointer",
-              whiteSpace: "nowrap", // 💡 prevent line breaks
-              fontSize: "1rem", // optional: make text more readable
-            }}
-          >
-            Drop a Note 📜
-        </button>
         </div>
 
         {isAdding && (

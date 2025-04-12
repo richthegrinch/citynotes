@@ -4,8 +4,8 @@
     left: 0;
     width: 250px;
     height: 100%;
-    background: white;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+    background: rgb(232, 250, 128);
+    border: rgb(148, 201, 96);
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
     z-index: 1001;
