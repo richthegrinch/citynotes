@@ -1,3 +1,5 @@
+//IMPORTS
+//map basics
 import React, { useState, useEffect, useRef } from "react";
 import {
   MapContainer,
@@ -5,17 +7,17 @@ import {
   Marker,
   Popup,
   useMapEvent,
-  // useMap,
+  useMap
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
 
-// For search bar
+//location search
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import "leaflet-control-geocoder";
-import { useMap } from "react-leaflet";
 
+//firebase
 import { db } from "./firebase";
 import {
   collection,
@@ -27,11 +29,11 @@ import {
 } from "firebase/firestore";
 
 
-
+//CONSTANTS
 const MAX_WORDS = 12;
 const MAX_CHARACTERS = 70;
 
-// Fix leaflet marker icon issues
+// icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
@@ -39,7 +41,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-// Mood icons
+// icons pt. 2
 const moodIcons = {
   happy: new L.DivIcon({ html: "😊", className: "emoji-icon", iconSize: [30, 30] }),
   sad: new L.DivIcon({ html: "😢", className: "emoji-icon", iconSize: [30, 30] }),
@@ -48,23 +50,16 @@ const moodIcons = {
   default: new L.DivIcon({ html: "📍", className: "emoji-icon", iconSize: [30, 30] }),
 };
 
-
+//word limit
 const getWordCount = (text) => {
   return text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
 };
 
-// useEffect(() => {
-//   const fetchEntries = async () => {
-//     const snapshot = await getDocs(collection(db, "entries"));
-//     const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-//     setEntries(data);
-//   };
-
-//   fetchEntries();
-// }, []);
 
 
-//Search bar function
+//functions
+
+//search bar
 function GeocoderControl() {
   const map = useMap();
 
@@ -89,7 +84,7 @@ function GeocoderControl() {
   return null;
 }
 
-
+//add pin
 function AddMarkerOnClick({ isAdding, onMapClick }) {
   useMapEvent("click", (e) => {
     if (isAdding) {
@@ -99,6 +94,7 @@ function AddMarkerOnClick({ isAdding, onMapClick }) {
   return null;
 }
 
+//allow editing of pin
 function EditableMarker({
   entry,
   isEditing,
@@ -173,7 +169,7 @@ function EditableMarker({
             <button type="submit">Update</button>
           </form>
         ) : (
-          <div>
+          <div className="popup-text">
             <strong>{entry.mood}</strong>
             <br />
             {entry.text}
@@ -193,6 +189,7 @@ function EditableMarker({
   );
 }
 
+//main
 export default function App() {
   const [isAdding, setIsAdding] = useState(false);
   const [tempMarker, setTempMarker] = useState(null);
@@ -291,45 +288,6 @@ useEffect(() => {
     resetForm();
   };
   
-  // const handleSave = (e) => {
-  //   e.preventDefault();
-  //   const wordCount = getWordCount(noteText);
-  //   const charCount = noteText.length;
-  //   if (wordCount > MAX_WORDS || charCount > MAX_CHARACTERS) {
-  //     alert(
-  //       `Your entry is too long.\n\nWord limit: ${wordCount}/${MAX_WORDS}\nCharacter limit: ${charCount}/${MAX_CHARACTERS}`
-  //     );
-  //     return; // ❌ Stop here if it’s over the limit
-  //   }
-  
-  //   if (editingId !== null) {
-  //     setEntries((prev) =>
-  //       prev.map((entry) =>
-  //         entry.id === editingId
-  //           ? {
-  //               ...entry,
-  //               text: noteText,
-  //               mood,
-  //               timestamp: new Date().toISOString(),
-  //             }
-  //           : entry
-  //       )
-  //     );
-  //   } else {
-  //     const newEntry = {
-  //       id: Date.now(),
-  //       lat: tempMarker.lat,
-  //       lng: tempMarker.lng,
-  //       text: noteText,
-  //       mood,
-  //       timestamp: new Date().toISOString(),
-  //       fromSession: true,
-  //     };
-  //     setEntries((prev) => [...prev, newEntry]);
-  //   }
-  
-  //   resetForm(); // ✅ Reset form only if valid
-  // };
 
   const resetForm = () => {
     setNoteText("");
@@ -409,10 +367,6 @@ useEffect(() => {
             Drop a Note 📜
         </button>
         </div>
-
-        <Marker position={[38.9869, -76.9426]}>
-          <Popup>This is UMD Chapel Garden 🌼</Popup>
-        </Marker>
 
         {isAdding && (
           <AddMarkerOnClick
