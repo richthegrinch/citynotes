@@ -16,6 +16,19 @@ import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import "leaflet-control-geocoder";
 import { useMap } from "react-leaflet";
 
+import { db } from "./firebase";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
+
+const MAX_WORDS = 12;
+const MAX_CHARACTERS = 70;
+
 // Fix leaflet marker icon issues
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -34,8 +47,9 @@ const moodIcons = {
 };
 
 
-// import L from "leaflet";
-// import "leaflet-control-geocoder";
+const getWordCount = (text) => {
+  return text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
+};
 
 //Search bar function
 function GeocoderControl() {
@@ -110,7 +124,14 @@ function EditableMarker({
   // };
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    onUpdate(noteText, mood); // Update the memory
+    if (
+      getWordCount(noteText) > MAX_WORDS ||
+      noteText.length > MAX_CHARACTERS
+    ) {
+      alert("Your entry is too long. Please shorten it.");
+      return;
+    }
+    onUpdate(noteText, mood);
   };
   // useEffect(() => {
   //   if (isEditing) {
@@ -151,11 +172,21 @@ function EditableMarker({
           >
             <textarea
               value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
+              onChange={(e) => {
+                const text = e.target.value;
+                const words = getWordCount(text);
+                if (words <= MAX_WORDS && text.length <= MAX_CHARACTERS) {
+                  setNoteText(text);
+                }
+              }}
               rows={3}
               style={{ width: "100%" }}
-              required
+              //required
             />
+            <small style={{ color: noteText.length >= MAX_CHARACTERS || getWordCount(noteText) >= MAX_WORDS ? "red" : "gray" }}>
+              {getWordCount(noteText)} / {MAX_WORDS} words • {noteText.length} / {MAX_CHARACTERS} characters
+            </small>
+
             <select value={mood} onChange={(e) => setMood(e.target.value)}>
               <option value="happy">😊 Happy</option>
               <option value="sad">😢 Sad</option>
@@ -197,11 +228,27 @@ export default function App() {
 
   const handleSave = (e) => {
     e.preventDefault();
+  
+    const wordCount = getWordCount(noteText);
+    const charCount = noteText.length;
+  
+    if (wordCount > MAX_WORDS || charCount > MAX_CHARACTERS) {
+      alert(
+        `Your entry is too long.\n\nWord limit: ${wordCount}/${MAX_WORDS}\nCharacter limit: ${charCount}/${MAX_CHARACTERS}`
+      );
+      return; // ❌ Stop here if it’s over the limit
+    }
+  
     if (editingId !== null) {
       setEntries((prev) =>
         prev.map((entry) =>
           entry.id === editingId
-            ? { ...entry, text: noteText, mood, timestamp: new Date().toISOString() }
+            ? {
+                ...entry,
+                text: noteText,
+                mood,
+                timestamp: new Date().toISOString(),
+              }
             : entry
         )
       );
@@ -217,9 +264,10 @@ export default function App() {
       };
       setEntries((prev) => [...prev, newEntry]);
     }
-
-    resetForm();
+  
+    resetForm(); // ✅ Reset form only if valid
   };
+  
 
   const resetForm = () => {
     setNoteText("");
@@ -337,11 +385,21 @@ export default function App() {
                 <textarea
                   placeholder="Your memory..."
                   value={noteText}
-                  onChange={(e) => setNoteText(e.target.value)}
-                  required
+                  onChange={(e) => {
+                    const text = e.target.value;
+                    const words = getWordCount(text);
+                    if (words <= MAX_WORDS && text.length <= MAX_CHARACTERS) {
+                      setNoteText(text);
+                    }
+                  }}
+                  //required
                   rows={3}
                   style={{ width: "100%" }}
                 />
+                <small style={{ color: noteText.length >= MAX_CHARACTERS || getWordCount(noteText) >= MAX_WORDS ? "red" : "gray" }}>
+                  {getWordCount(noteText)} / {MAX_WORDS} words • {noteText.length} / {MAX_CHARACTERS} characters
+                </small>
+
                 <select value={mood} onChange={(e) => setMood(e.target.value)}>
                   <option value="happy">😊 Happy</option>
                   <option value="sad">😢 Sad</option>
