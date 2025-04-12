@@ -1,13 +1,17 @@
-import React from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvent,
+  // useMap,
+} from "react-leaflet";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import "./App.css";
-import { useState } from "react";
-import { useMapEvent } from "react-leaflet";
 
-
-// Fix default marker icon issue in Leaflet + React
+// Fix leaflet marker icon issues
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
@@ -15,59 +19,226 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-function App() {
-  const [isAdding, setIsAdding] = useState(false); // whether user is placing a pin
-  const [tempMarker, setTempMarker] = useState(null); // position clicked on map
-  const [entries, setEntries] = useState([]); // saved pins
-  const [showForm, setShowForm] = useState(false); // toggle form visibility
-  const [noteText, setNoteText] = useState(""); // text input
-  const [mood, setMood] = useState("happy"); // default mood
-  function AddMarkerOnClick({ isAdding, onMapClick }) {
-    useMapEvent("click", (e) => {
-      if (isAdding) {
-        onMapClick(e.latlng);
-      }
-    });
-    return null;
-  }
+// Mood icons
+const moodIcons = {
+  happy: new L.DivIcon({ html: "😊", className: "emoji-icon", iconSize: [30, 30] }),
+  sad: new L.DivIcon({ html: "😢", className: "emoji-icon", iconSize: [30, 30] }),
+  excited: new L.DivIcon({ html: "🎉", className: "emoji-icon", iconSize: [30, 30] }),
+  calm: new L.DivIcon({ html: "🌿", className: "emoji-icon", iconSize: [30, 30] }),
+  default: new L.DivIcon({ html: "📍", className: "emoji-icon", iconSize: [30, 30] }),
+};
+
+function AddMarkerOnClick({ isAdding, onMapClick }) {
+  useMapEvent("click", (e) => {
+    if (isAdding) {
+      onMapClick(e.latlng);
+    }
+  });
+  return null;
+}
+
+function EditableMarker({
+  entry,
+  isEditing,
+  onEditClick,
+  onDelete,
+  onUpdate,
+  onClose,
+  noteText,
+  setNoteText,
+  mood,
+  setMood,
+  moodIcons,
+}) {
+  // const popupRef = useRef();
+
+  // useEffect(() => {
+  //   if (isEditing && popupRef.current) {
+  //     console.log("Opening popup for editing entry:", entry.id);
+  //     popupRef.current.openOn(popupRef.current._map);
+  //   } else {
+  //     console.log("Popup ref not ready or not editing");
+  //   }
+  // }, [isEditing]);
+  const justOpenedRef = useRef(false);
+  const handlePopupOpen = () => {
+    console.log("Popup opened for entry", entry.id); // Debug: Popup opened
+    justOpenedRef.current = true;
+  };
+  // const handlePopupClose = () => {
+  //   if (justOpenedRef.current) {
+  //     console.log("Popup close ignored due to just opened for entry", entry.id); // Debug: Popup close ignored
+  //   } else {
+  //     console.log("Popup closed for entry", entry.id); // Debug: Popup closed
+  //     onClose(entry.id); // Optional: Trigger onClose if needed
+  //   }
+  // };
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    onUpdate(noteText, mood); // Update the memory
+  };
+  // useEffect(() => {
+  //   if (isEditing) {
+  //     justOpenedRef.current = true;
+  //     setTimeout(() => {
+  //       justOpenedRef.current = false;
+  //       console.log("Popup opening timeout completed for entry", entry.id);
+  //     }, 100); // small delay so we don’t treat auto-close as user close
+  //   }
+  // }, [isEditing]);
+
+  return (
+    <Marker
+      position={[entry.lat, entry.lng]}
+      icon={moodIcons[entry.mood] || moodIcons.default}
+      eventHandlers={{
+        popupopen: handlePopupOpen, // Directly handling popup open
+        // popupclose: handlePopupClose, // Directly handling popup close
+        // popupclose: () => {
+        //   console.log("Popup close event triggered for entry", entry.id);
+        //   if (isEditing && !justOpenedRef.current) {
+        //     console.log("Popup is closing after being opened by the user for entry", entry.id); // Debug: Confirming user-triggered close
+        //     onClose(); // Close only if editing and it wasn’t just opened
+        //   } else {
+        //     console.log("Popup close ignored due to just opened for entry", entry.id); // Debug: Ignored close
+        //   }
+        // },
+      }}
+    >
+      <Popup open={isEditing}>
+
+        {isEditing ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onUpdate(noteText, mood);
+            }}
+          >
+            <textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              rows={3}
+              style={{ width: "100%" }}
+              required
+            />
+            <select value={mood} onChange={(e) => setMood(e.target.value)}>
+              <option value="happy">😊 Happy</option>
+              <option value="sad">😢 Sad</option>
+              <option value="excited">🎉 Excited</option>
+              <option value="calm">🌿 Calm</option>
+            </select>
+            <br />
+            <button type="submit">Update</button>
+          </form>
+        ) : (
+          <div>
+            <strong>{entry.mood}</strong>
+            <br />
+            {entry.text}
+            <br />
+            <small>{new Date(entry.timestamp).toLocaleString()}</small>
+            <br />
+            {entry.fromSession && (
+              <>
+                <button onClick={onEditClick}>Edit</button>
+                <button onClick={onDelete}>Delete</button>
+              </>
+            )}
+          </div>
+        )}
+      </Popup>
+    </Marker>
+  );
+}
+
+export default function App() {
+  const [isAdding, setIsAdding] = useState(false);
+  const [tempMarker, setTempMarker] = useState(null);
+  const [entries, setEntries] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [noteText, setNoteText] = useState("");
+  const [mood, setMood] = useState("happy");
+  const [editingId, setEditingId] = useState(null);
+
+  const handleSave = (e) => {
+    e.preventDefault();
+    if (editingId !== null) {
+      setEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === editingId
+            ? { ...entry, text: noteText, mood, timestamp: new Date().toISOString() }
+            : entry
+        )
+      );
+    } else {
+      const newEntry = {
+        id: Date.now(),
+        lat: tempMarker.lat,
+        lng: tempMarker.lng,
+        text: noteText,
+        mood,
+        timestamp: new Date().toISOString(),
+        fromSession: true,
+      };
+      setEntries((prev) => [...prev, newEntry]);
+    }
+
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setNoteText("");
+    setMood("happy");
+    setTempMarker(null);
+    setEditingId(null);
+    setShowForm(false);
+  };
+
+  const handleDelete = (id) => {
+    setEntries((prev) => prev.filter((entry) => entry.id !== id));
+    resetForm();
+  };
+
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
-        <button
-          onClick={() => {
-            setIsAdding(true);
-            alert("Click on the map to drop your memory 🌱");
-          }}
-          style={{
-            position: "absolute",
-            top: "1rem",
-            right: "1rem",
-            zIndex: 1000,
-            padding: "0.5rem 1rem",
-            background: "green",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-          }}
-        >
-          Plant a Memory 🌱
-      </button>
-      {/* Map container renders the map in React */} 
-      <MapContainer
-        center={[38.9869, -76.9426]} //starting location
-        zoom={15} //how zoomed in the map starts
-        scrollWheelZoom={true} //allow scrolling
-        style={{ height: "100%", width: "100%" }} //set the height and width
+      <button
+        onClick={() => {
+          setIsAdding(true);
+          alert("Click on the map to drop your memory 🌱");
+        }}
+        style={{
+          position: "absolute",
+          top: "1rem",
+          right: "1rem",
+          zIndex: 1000,
+          padding: "0.5rem 1rem",
+          background: "green",
+          color: "white",
+          border: "none",
+          borderRadius: "8px",
+          cursor: "pointer",
+        }}
       >
-        {/* The actual background map*/}
+        Plant a Memory 🌱
+      </button>
+
+      <MapContainer
+        center={[38.9869, -76.9426]}
+        zoom={15}
+        scrollWheelZoom={true}
+        tap = {false}
+        closePopupOnClick = {false}
+        style={{ height: "100%", width: "100%" }}
+      >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
         />
-        {/* UMD Chapel popup static marker*/}
+
         <Marker position={[38.9869, -76.9426]}>
           <Popup>This is UMD Chapel Garden 🌼</Popup>
         </Marker>
+
         {isAdding && (
           <AddMarkerOnClick
             isAdding={isAdding}
@@ -78,27 +249,53 @@ function App() {
             }}
           />
         )}
+
+        {entries.map((entry) => (
+          <EditableMarker
+            key={entry.id}
+            entry={entry}
+            isEditing={editingId === entry.id}
+            onEditClick={() => {
+              console.log("Edit clicked for entry", entry.id);
+              setEditingId(entry.id);
+              setNoteText(entry.text);
+              setMood(entry.mood);
+            }}
+            onDelete={() => handleDelete(entry.id)}
+            onUpdate={(updatedText, updatedMood) => {
+              setEntries((prev) =>
+                prev.map((ent) =>
+                  ent.id === entry.id
+                    ? {
+                        ...ent,
+                        text: updatedText,
+                        mood: updatedMood,
+                        timestamp: new Date().toISOString(),
+                      }
+                    : ent
+                )
+              );
+              resetForm();
+            }}
+            onClose={() => {
+              if (editingId === entry.id) resetForm();
+            }}
+            noteText={noteText}
+            setNoteText={setNoteText}
+            mood={mood}
+            setMood={setMood}
+            moodIcons={moodIcons}
+          />
+        ))}
+
         {showForm && tempMarker && (
-          <Marker position={tempMarker}>
-            <Popup onClose={() => setShowForm(false)}>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const newEntry = {
-                    id: Date.now(),
-                    lat: tempMarker.lat,
-                    lng: tempMarker.lng,
-                    text: noteText,
-                    mood: mood,
-                    timestamp: new Date().toISOString(),
-                  };
-                  setEntries([...entries, newEntry]);
-                  setNoteText("");
-                  setMood("happy");
-                  setTempMarker(null);
-                  setShowForm(false);
-                }}
-              >
+          <Marker position={tempMarker} icon={moodIcons[mood] || moodIcons.default}>
+            <Popup
+              onClose={resetForm}
+              autoClose={false}
+              closeOnClick={false}
+            >
+              <form onSubmit={handleSave}>
                 <textarea
                   placeholder="Your memory..."
                   value={noteText}
@@ -110,7 +307,8 @@ function App() {
                 <select value={mood} onChange={(e) => setMood(e.target.value)}>
                   <option value="happy">😊 Happy</option>
                   <option value="sad">😢 Sad</option>
-                  <option value="nostalgic">🌙 Nostalgic</option>
+                  <option value="excited">🎉 Excited</option>
+                  <option value="calm">🌿 Calm</option>
                 </select>
                 <br />
                 <button type="submit">Save</button>
@@ -118,20 +316,7 @@ function App() {
             </Popup>
           </Marker>
         )}
-        {entries.map((entry) => (
-          <Marker key={entry.id} position={[entry.lat, entry.lng]}>
-            <Popup>
-              <strong>{entry.mood}</strong> <br />
-              {entry.text}
-              <br />
-              <small>{new Date(entry.timestamp).toLocaleString()}</small>
-            </Popup>
-          </Marker>
-        ))}
-
       </MapContainer>
     </div>
   );
 }
-
-export default App;
