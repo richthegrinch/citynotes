@@ -81,3 +81,8 @@ html, body, #root {
 }
 
 
+.popup-text {
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
