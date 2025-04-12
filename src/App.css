@@ -67,19 +67,3 @@ body {
   padding: 0;
   overflow: hidden;
 }
-
-.sidebar {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  min-width: 200px;
-  background-color: rgb(173, 211, 146);
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 0 10px #94b47e;
-  z-index: 1000;
-}
-
-.sidebar h2 {
-  margin-top: 0;
-}

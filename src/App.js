@@ -1,3 +1,5 @@
+//IMPORTS
+//map basics
 import React, { useState, useEffect, useRef } from "react";
 import {
   MapContainer,
@@ -5,17 +7,18 @@ import {
   Marker,
   Popup,
   useMapEvent,
-  // useMap,
+  useMap
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
+import SideMenu from "./SideMenu";
 
-// For search bar
+//location search
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import "leaflet-control-geocoder";
-import { useMap } from "react-leaflet";
 
+//firebase
 import { db } from "./firebase";
 import {
   collection,
@@ -25,13 +28,18 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
+import happyIcon from "./assets/happy.gif";
+import cryingIcon from "./assets/crying.gif";
+import danceFloorIcon from "./assets/dance-floor.gif";
+import chillIcon from "./assets/relaxed.gif";
+import flirtyIcon from "./assets/flirty.gif";
 
 
-
-const MAX_WORDS = 12;
+//CONSTANTS
+//const MAX_WORDS = 12;
 const MAX_CHARACTERS = 70;
 
-// Fix leaflet marker icon issues
+// icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
@@ -39,32 +47,56 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-// Mood icons
+// icons pt. 2
 const moodIcons = {
-  happy: new L.DivIcon({ html: "😊", className: "emoji-icon", iconSize: [30, 30] }),
-  sad: new L.DivIcon({ html: "😢", className: "emoji-icon", iconSize: [30, 30] }),
-  excited: new L.DivIcon({ html: "🎉", className: "emoji-icon", iconSize: [30, 30] }),
-  calm: new L.DivIcon({ html: "🌿", className: "emoji-icon", iconSize: [30, 30] }),
-  default: new L.DivIcon({ html: "📍", className: "emoji-icon", iconSize: [30, 30] }),
+  happy: new L.Icon({
+    iconUrl: happyIcon,
+    iconSize: [60, 60],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+  }),
+  sad: new L.Icon({
+    iconUrl: cryingIcon,
+    iconSize: [60, 60],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+  }),
+  lively: new L.Icon({
+    iconUrl: danceFloorIcon,
+    iconSize: [60, 60],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+  }),
+  calm: new L.Icon({
+    iconUrl: chillIcon,
+    iconSize: [60, 60],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+  }),
+  romantic: new L.Icon({
+    iconUrl: flirtyIcon,
+    iconSize: [60, 60],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+  }),
+  default: new L.DivIcon({
+    html: "📍",
+    className: "emoji-icon",
+    iconSize: [30, 30],
+  }),
 };
 
 
-const getWordCount = (text) => {
-  return text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
-};
-
-// useEffect(() => {
-//   const fetchEntries = async () => {
-//     const snapshot = await getDocs(collection(db, "entries"));
-//     const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-//     setEntries(data);
-//   };
-
-//   fetchEntries();
-// }, []);
+//word limit
+// const getWordCount = (text) => {
+//   return text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
+// };
 
 
-//Search bar function
+
+//functions
+
+//search bar
 function GeocoderControl() {
   const map = useMap();
 
@@ -89,7 +121,7 @@ function GeocoderControl() {
   return null;
 }
 
-//Add Note function
+//add pin
 function AddMarkerOnClick({ isAdding, onMapClick }) {
   useMapEvent("click", (e) => {
     if (isAdding) {
@@ -99,6 +131,7 @@ function AddMarkerOnClick({ isAdding, onMapClick }) {
   return null;
 }
 
+//allow editing of pin
 function EditableMarker({
   entry,
   isEditing,
@@ -114,13 +147,13 @@ function EditableMarker({
 }) {
   const justOpenedRef = useRef(false);
   const handlePopupOpen = () => {
-    console.log("Popup opened for entry", entry.id); // Debug: Popup opened
+    console.log("Popup opened for entry", entry.id);
     justOpenedRef.current = true;
   };
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (
-      getWordCount(noteText) > MAX_WORDS ||
+      // getWordCount(noteText) > MAX_WORDS ||
       noteText.length > MAX_CHARACTERS
     ) {
       alert("Your entry is too long. Please shorten it.");
@@ -134,7 +167,7 @@ function EditableMarker({
       position={[entry.lat, entry.lng]}
       icon={moodIcons[entry.mood] || moodIcons.default}
       eventHandlers={{
-        popupopen: handlePopupOpen, // Directly handling popup open
+        popupopen: handlePopupOpen,
       }}
     >
       <Popup open={isEditing}>
@@ -150,8 +183,9 @@ function EditableMarker({
               value={noteText}
               onChange={(e) => {
                 const text = e.target.value;
-                const words = getWordCount(text);
-                if (words <= MAX_WORDS && text.length <= MAX_CHARACTERS) {
+                // const words = getWordCount(text);
+                if (text.length <= MAX_CHARACTERS) {
+                //if (words <= MAX_WORDS && text.length <= MAX_CHARACTERS) {
                   setNoteText(text);
                 }
               }}
@@ -159,8 +193,10 @@ function EditableMarker({
               style={{ width: "100%" }}
               //required
             />
-            <small style={{ color: noteText.length >= MAX_CHARACTERS || getWordCount(noteText) >= MAX_WORDS ? "red" : "gray" }}>
-              {getWordCount(noteText)} / {MAX_WORDS} words • {noteText.length} / {MAX_CHARACTERS} characters
+            {/* <small style={{ color: noteText.length >= MAX_CHARACTERS || getWordCount(noteText) >= MAX_WORDS ? "red" : "gray" }}> */}
+            <small style={{ color: noteText.length >= MAX_CHARACTERS? "red" : "gray" }}>
+              {noteText.length} / {MAX_CHARACTERS} characters
+              {/* {getWordCount(noteText)} / {MAX_WORDS} words • {noteText.length} / {MAX_CHARACTERS} characters */}
             </small>
 
             <select value={mood} onChange={(e) => setMood(e.target.value)}>
@@ -173,7 +209,7 @@ function EditableMarker({
             <button type="submit">Update</button>
           </form>
         ) : (
-          <div>
+          <div className="popup-text">
             <strong>{entry.mood}</strong>
             <br />
             {entry.text}
@@ -193,6 +229,7 @@ function EditableMarker({
   );
 }
 
+//main
 export default function App() {
   const [isAdding, setIsAdding] = useState(false);
   const [tempMarker, setTempMarker] = useState(null);
@@ -202,6 +239,7 @@ export default function App() {
   const [mood, setMood] = useState("happy");
   const [editingId, setEditingId] = useState(null);
   const mapRef = useRef();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [minZoom, setMinZoom] = useState(2);
 
@@ -210,8 +248,8 @@ useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    const bounds = map.getBounds(); // current visible bounds
-    const worldBounds = L.latLngBounds([[-85, -180], [85, 180]]); // entire map
+    const bounds = map.getBounds();
+    const worldBounds = L.latLngBounds([[-85, -180], [85, 180]]);
 
     const requiredZoom = map.getBoundsZoom(worldBounds, false);
     setMinZoom(requiredZoom);
@@ -235,10 +273,6 @@ useEffect(() => {
   return () => window.removeEventListener("resize", handleResize);
 }, []);
 
-
-
-
-  //HELLO
   useEffect(() => {
     const fetchEntries = async () => {
       const snapshot = await getDocs(collection(db, "entries"));
@@ -253,23 +287,27 @@ useEffect(() => {
     fetchEntries();
   }, []);
 
-
-
-
-
   const handleSave = async (e) => {
     e.preventDefault();
   
-    const wordCount = getWordCount(noteText);
+    // const wordCount = getWordCount(noteText);
     const charCount = noteText.length;
   
-    if (wordCount > MAX_WORDS || charCount > MAX_CHARACTERS) {
+    if (charCount > MAX_CHARACTERS) {
       alert(
-        `Your entry is too long.\n\nWord limit: ${wordCount}/${MAX_WORDS}\nCharacter limit: ${charCount}/${MAX_CHARACTERS}`
+        `Your entry is too long.\n\nCharacter limit: ${charCount}/${MAX_CHARACTERS}`
       );
-      return; // ❌ Stop here if it’s over the limit
+      return; 
     }
   
+    // if (wordCount > MAX_WORDS || charCount > MAX_CHARACTERS) {
+    //   alert(
+    //     `Your entry is too long.\n\nWord limit: ${wordCount}/${MAX_WORDS}\nCharacter limit: ${charCount}/${MAX_CHARACTERS}`
+    //   );
+    //   return;
+    // }
+  
+    
     
     const newEntry = {
       lat: tempMarker.lat,
@@ -291,45 +329,6 @@ useEffect(() => {
     resetForm();
   };
   
-  // const handleSave = (e) => {
-  //   e.preventDefault();
-  //   const wordCount = getWordCount(noteText);
-  //   const charCount = noteText.length;
-  //   if (wordCount > MAX_WORDS || charCount > MAX_CHARACTERS) {
-  //     alert(
-  //       `Your entry is too long.\n\nWord limit: ${wordCount}/${MAX_WORDS}\nCharacter limit: ${charCount}/${MAX_CHARACTERS}`
-  //     );
-  //     return; // ❌ Stop here if it’s over the limit
-  //   }
-  
-  //   if (editingId !== null) {
-  //     setEntries((prev) =>
-  //       prev.map((entry) =>
-  //         entry.id === editingId
-  //           ? {
-  //               ...entry,
-  //               text: noteText,
-  //               mood,
-  //               timestamp: new Date().toISOString(),
-  //             }
-  //           : entry
-  //       )
-  //     );
-  //   } else {
-  //     const newEntry = {
-  //       id: Date.now(),
-  //       lat: tempMarker.lat,
-  //       lng: tempMarker.lng,
-  //       text: noteText,
-  //       mood,
-  //       timestamp: new Date().toISOString(),
-  //       fromSession: true,
-  //     };
-  //     setEntries((prev) => [...prev, newEntry]);
-  //   }
-  
-  //   resetForm(); // ✅ Reset form only if valid
-  // };
 
   const resetForm = () => {
     setNoteText("");
@@ -344,10 +343,56 @@ useEffect(() => {
     setEntries((prev) => prev.filter((entry) => entry.id !== id));
     resetForm();
   };
-  
 
+  const toggleMenu = () => {
+    setIsMenuOpen(prev => !prev);
+  };
+  
   return (
-    <div style={{ height: "100vh", width: "100vw", fontFamily: 'monospace'}}>
+    <div style={{ height: "100vh", width: "100vw" }}>
+      /*Toggle button for the menu*/
+      <button
+        onClick={toggleMenu}
+        style={{
+          position: "absolute",
+          top: "1rem",
+          left: "1rem",
+          zIndex: 1100,
+          background: "white",
+          border: "none",
+          borderRadius: "5px",
+          padding: "0.5rem 1rem",
+          boxShadow: "0 2px 5px rgba(0,0,0,0.3)",
+          fontSize: "1.2rem",
+          cursor: "pointer"
+        }}
+      >
+        {isMenuOpen ? "✖" : "☰"}
+      </button>
+      
+      /*Side Menu*/
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          height: "100%",
+          width: "250px",
+          backgroundColor: "white",
+          transform: isMenuOpen ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 0.3s ease-in-out",
+          zIndex: 1050,
+          boxShadow: isMenuOpen ? "2px 0 5px rgba(0,0,0,0.3)" : "none",
+          padding: "1rem"
+        }}
+      >
+        <h3>My Menu</h3>
+        <ul>
+          <li>Layer 1</li>
+          <li>Layer 2</li>
+          <li>Settings</li>
+        </ul>
+      </div>
 
       <MapContainer
         center={[38.9869, -76.9426]}
@@ -368,7 +413,6 @@ useEffect(() => {
           attribution="&copy; OpenStreetMap contributors"
         />
 
-        {/* Search bar */}
         <div
           style={{
             position: "absolute",
@@ -385,7 +429,7 @@ useEffect(() => {
         <div
           style={{
             position: "absolute",
-            top: "3.5rem", // below the search
+            top: "3.5rem",
             right: "1rem",
             zIndex: 999,
           }}
@@ -393,7 +437,7 @@ useEffect(() => {
           <button
             onClick={() => {
               setIsAdding(true);
-              alert("Click on the map to drop a note! 📜");
+              alert("Click on the map to drop a note 📜");
             }}
             style={{
               padding: "0.5rem 1rem",
@@ -407,13 +451,9 @@ useEffect(() => {
               fontSize: "1rem", // optional: make text more readable
             }}
           >
-            add a note 📜
+            Drop a Note 📜
         </button>
         </div>
-
-        <Marker position={[38.9869, -76.9426]}>
-          <Popup>This is UMD Chapel Garden 🌼</Popup>
-        </Marker>
 
         {isAdding && (
           <AddMarkerOnClick
@@ -479,8 +519,8 @@ useEffect(() => {
                   value={noteText}
                   onChange={(e) => {
                     const text = e.target.value;
-                    const words = getWordCount(text);
-                    if (words <= MAX_WORDS && text.length <= MAX_CHARACTERS) {
+                    //const words = getWordCount(text);
+                    if (text.length <= MAX_CHARACTERS) {
                       setNoteText(text);
                     }
                   }}
@@ -488,15 +528,16 @@ useEffect(() => {
                   rows={3}
                   style={{ width: "100%" }}
                 />
-                <small style={{ color: noteText.length >= MAX_CHARACTERS || getWordCount(noteText) >= MAX_WORDS ? "red" : "gray" }}>
-                  {getWordCount(noteText)} / {MAX_WORDS} words • {noteText.length} / {MAX_CHARACTERS} characters
+                <small style={{ color: noteText.length >= MAX_CHARACTERS ? "red" : "gray" }}>
+                  {noteText.length} / {MAX_CHARACTERS} characters
                 </small>
 
                 <select value={mood} onChange={(e) => setMood(e.target.value)}>
                   <option value="happy">😊 Happy</option>
                   <option value="sad">😢 Sad</option>
-                  <option value="excited">🎉 Excited</option>
+                  <option value="lively">🎉 Lively</option>
                   <option value="calm">🌿 Calm</option>
+                  <option value="romantic">🥰 Romantic</option>
                 </select>
                 <br />
                 <button type="submit">Save</button>
@@ -507,4 +548,5 @@ useEffect(() => {
       </MapContainer>
     </div>
   );
+
 }
