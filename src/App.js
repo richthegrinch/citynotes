@@ -56,7 +56,7 @@ const moodIcons = {
   }),
   sad: new L.Icon({
     iconUrl: cryingIcon,
-    iconSize: [60, 60],
+    iconSize: [80, 80],
     iconAnchor: [15, 30],
     popupAnchor: [0, -30],
   }),
@@ -68,7 +68,7 @@ const moodIcons = {
   }),
   calm: new L.Icon({
     iconUrl: chillIcon,
-    iconSize: [60, 60],
+    iconSize: [80, 80],
     iconAnchor: [15, 30],
     popupAnchor: [0, -30],
   }),
@@ -199,10 +199,12 @@ function EditableMarker({
             </small>
 
             <select value={mood} onChange={(e) => setMood(e.target.value)}>
+              <option value="all">All</option>
               <option value="happy">😊 Happy</option>
               <option value="sad">😢 Sad</option>
-              <option value="excited">🎉 Excited</option>
+              <option value="lively">💃 Lively</option>
               <option value="calm">🌿 Calm</option>
+              <option value="romantic">💘 Romantic</option>
             </select>
             <br />
             <button type="submit">Update</button>
@@ -238,8 +240,10 @@ export default function App() {
   const [mood, setMood] = useState("happy");
   const [editingId, setEditingId] = useState(null);
   const mapRef = useRef();
-
   const [minZoom, setMinZoom] = useState(2);
+  const [selectedMood, setSelectedMood] = useState("all");
+  const [searchText, setSearchText] = useState("");
+
 
 useEffect(() => {
   const calculateMinZoom = () => {
@@ -345,6 +349,42 @@ useEffect(() => {
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
+      <div style={{
+        position: "absolute",
+        top: "10px",
+        left: "80px",
+        zIndex: 1000,
+        background: "white",
+        backgroundColor: "green",
+        padding: "8px",
+        borderRadius: "8px",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+        color: "white",
+      }}>
+        <label htmlFor="moodFilter">Filter by Mood: </label>
+        <select
+          id="moodFilter"
+          value={selectedMood}
+          onChange={(e) => setSelectedMood(e.target.value)}
+        >
+          <option value="all">All</option>
+          <option value="happy">😊 Happy</option>
+          <option value="sad">😢 Sad</option>
+          <option value="lively">💃 Lively</option>
+          <option value="calm">🌿 Calm</option>
+          <option value="romantic">💘 Romantic</option>
+        </select>
+
+        <label htmlFor="textFilter">Search Text:</label>
+        <input
+          id="textFilter"
+          type="text"
+          placeholder="Search notes..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ padding: "4px", borderRadius: "4px", border: "none" }}
+        />
+      </div>
 
       <MapContainer
         center={[38.9869, -76.9426]}
@@ -417,7 +457,14 @@ useEffect(() => {
           />
         )}
 
-        {entries.map((entry) => (
+        {entries
+        .filter(entry => 
+          {
+            const moodMatches = selectedMood === "all" || entry.mood === selectedMood;
+            const textMatches = entry.text.toLowerCase().includes(searchText.toLowerCase());
+            return moodMatches && textMatches;
+          })
+        .map((entry) => (
           <EditableMarker
             key={entry.id}
             entry={entry}
