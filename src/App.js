@@ -89,7 +89,7 @@ function GeocoderControl() {
   return null;
 }
 
-
+//Add Note function
 function AddMarkerOnClick({ isAdding, onMapClick }) {
   useMapEvent("click", (e) => {
     if (isAdding) {
@@ -347,7 +347,7 @@ useEffect(() => {
   
 
   return (
-    <div style={{ height: "100vh", width: "100vw" }}>
+    <div style={{ height: "100vh", width: "100vw", fontFamily: 'monospace'}}>
 
       <MapContainer
         center={[38.9869, -76.9426]}
@@ -393,20 +393,21 @@ useEffect(() => {
           <button
             onClick={() => {
               setIsAdding(true);
-              alert("Click on the map to drop a note 📜");
+              alert("Click on the map to drop a note! 📜");
             }}
             style={{
               padding: "0.5rem 1rem",
-              background: "green",
-              color: "white",
-              border: "none",
+              background: "rgb(148, 201, 96)",
+              color: "rgb(77, 77, 77)",
+              border: "5px solid rgb(232, 250, 128)",
               borderRadius: "8px",
+              boxShadow: "0 0 0 5px rgb(148, 201, 96)",
               cursor: "pointer",
               whiteSpace: "nowrap", // 💡 prevent line breaks
               fontSize: "1rem", // optional: make text more readable
             }}
           >
-            Drop a Note 📜
+            add a note 📜
         </button>
         </div>
 
