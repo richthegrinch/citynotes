@@ -54,3 +54,8 @@ html, body, #root {
   height: 100%;
 }
 
+.popup-text {
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
