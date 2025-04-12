@@ -347,7 +347,7 @@ useEffect(() => {
   
 
   return (
-    <div style={{ height: "100vh", width: "100vw", fontFamily: 'monospace'}}>
+    <div style={{ height: "100vh", width: "100vw"}}>
 
       <MapContainer
         center={[38.9869, -76.9426]}
