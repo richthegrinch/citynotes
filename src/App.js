@@ -26,6 +26,8 @@ import {
   doc,
 } from "firebase/firestore";
 
+
+
 const MAX_WORDS = 12;
 const MAX_CHARACTERS = 70;
 
@@ -50,6 +52,17 @@ const moodIcons = {
 const getWordCount = (text) => {
   return text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
 };
+
+// useEffect(() => {
+//   const fetchEntries = async () => {
+//     const snapshot = await getDocs(collection(db, "entries"));
+//     const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+//     setEntries(data);
+//   };
+
+//   fetchEntries();
+// }, []);
+
 
 //Search bar function
 function GeocoderControl() {
@@ -189,7 +202,18 @@ export default function App() {
   const [mood, setMood] = useState("happy");
   const [editingId, setEditingId] = useState(null);
 
-  const handleSave = (e) => {
+  //HELLO
+  useEffect(() => {
+    const fetchEntries = async () => {
+      const snapshot = await getDocs(collection(db, "entries"));
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setEntries(data);
+    };
+  
+    fetchEntries();
+  }, []);
+
+  const handleSave = async (e) => {
     e.preventDefault();
   
     const wordCount = getWordCount(noteText);
@@ -202,35 +226,60 @@ export default function App() {
       return; // ❌ Stop here if it’s over the limit
     }
   
-    if (editingId !== null) {
-      setEntries((prev) =>
-        prev.map((entry) =>
-          entry.id === editingId
-            ? {
-                ...entry,
-                text: noteText,
-                mood,
-                timestamp: new Date().toISOString(),
-              }
-            : entry
-        )
-      );
-    } else {
-      const newEntry = {
-        id: Date.now(),
-        lat: tempMarker.lat,
-        lng: tempMarker.lng,
-        text: noteText,
-        mood,
-        timestamp: new Date().toISOString(),
-        fromSession: true,
-      };
-      setEntries((prev) => [...prev, newEntry]);
-    }
+    
+    const newEntry = {
+      lat: tempMarker.lat,
+      lng: tempMarker.lng,
+      text: noteText,
+      mood,
+      timestamp: new Date().toISOString(),
+      fromSession: true,
+    };
   
-    resetForm(); // ✅ Reset form only if valid
+    const docRef = await addDoc(collection(db, "entries"), newEntry);
+    setEntries(prev => [...prev, { ...newEntry, id: docRef.id }]);
+    resetForm();
   };
   
+  // const handleSave = (e) => {
+  //   e.preventDefault();
+  //   const wordCount = getWordCount(noteText);
+  //   const charCount = noteText.length;
+  //   if (wordCount > MAX_WORDS || charCount > MAX_CHARACTERS) {
+  //     alert(
+  //       `Your entry is too long.\n\nWord limit: ${wordCount}/${MAX_WORDS}\nCharacter limit: ${charCount}/${MAX_CHARACTERS}`
+  //     );
+  //     return; // ❌ Stop here if it’s over the limit
+  //   }
+  
+  //   if (editingId !== null) {
+  //     setEntries((prev) =>
+  //       prev.map((entry) =>
+  //         entry.id === editingId
+  //           ? {
+  //               ...entry,
+  //               text: noteText,
+  //               mood,
+  //               timestamp: new Date().toISOString(),
+  //             }
+  //           : entry
+  //       )
+  //     );
+  //   } else {
+  //     const newEntry = {
+  //       id: Date.now(),
+  //       lat: tempMarker.lat,
+  //       lng: tempMarker.lng,
+  //       text: noteText,
+  //       mood,
+  //       timestamp: new Date().toISOString(),
+  //       fromSession: true,
+  //     };
+  //     setEntries((prev) => [...prev, newEntry]);
+  //   }
+  
+  //   resetForm(); // ✅ Reset form only if valid
+  // };
 
   const resetForm = () => {
     setNoteText("");
@@ -240,10 +289,12 @@ export default function App() {
     setShowForm(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
+    await deleteDoc(doc(db, "entries", id));
     setEntries((prev) => prev.filter((entry) => entry.id !== id));
     resetForm();
   };
+  
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
@@ -331,20 +382,22 @@ export default function App() {
             }}
             onDelete={() => handleDelete(entry.id)}
             onUpdate={(updatedText, updatedMood) => {
-              setEntries((prev) =>
-                prev.map((ent) =>
-                  ent.id === entry.id
-                    ? {
-                        ...ent,
-                        text: updatedText,
-                        mood: updatedMood,
-                        timestamp: new Date().toISOString(),
-                      }
-                    : ent
-                )
+              const updatedEntry = {
+                ...entry,
+                text: updatedText,
+                mood: updatedMood,
+                timestamp: new Date().toISOString(),
+              };
+            
+              const docRef = doc(db, "entries", entry.id);
+              updateDoc(docRef, updatedEntry);
+            
+              setEntries(prev =>
+                prev.map(ent => (ent.id === entry.id ? updatedEntry : ent))
               );
               resetForm();
             }}
+            
             onClose={() => {
               if (editingId === entry.id) resetForm();
             }}
