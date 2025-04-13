@@ -68,7 +68,7 @@ html, body, #root {
   background-color: green;
   border-radius: 10px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-  max-width: 200px;
+  max-width: 300px !important;
 }
 
 .leaflet-container a.leaflet-popup-close-button {
@@ -102,19 +102,39 @@ html, body, #root {
 .save-button {
   width: 40px;
   height: 20px;
+  color: white;
   border-color: black;
+  padding: 12px 30px;
   border:0px;
-  border-radius: 10%;
-  padding: 20;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 50;
+  background-color: #53a8ed;
+  margin: 8px 0;
 }
 
 .edit-button {
   margin-right: 20%;
+  background-color: #53a8ed;
+  color: white;
+  border-radius: 8px;
+  margin: 8px;
+  padding: 5px 20px;
+}
 
+.delete-button {
+  background-color: #f44336;
+  color: white;
+  border-radius: 8px;
+  padding: 5px 20px;
+}
+
+.update-button {
+  background-color: #53a8ed;
+  color: white;
+  border-radius: 8px;
+  padding: 5px 20px;
 }
 
 .textFilterInput::placeholder {
@@ -124,10 +144,16 @@ html, body, #root {
 
 .popup-text {
   color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern and clean font */
+  font-size: 24px; /* Larger text */
+  font-weight: 400; /* Regular weight */
+  line-height: 1.5; /* Improve readability */
   word-break: break-word;
   hyphens: auto;
   overflow-wrap: anywhere;
+  margin: 5px 0; /* Add some spacing around text */
 }
+
 
 /* .map-crosshair {
   cursor: crosshair !important;
@@ -136,4 +162,13 @@ html, body, #root {
 
 .map-crosshair {
   cursor: url("/cursor.cur") 16 16, auto !important;
+}
+
+textarea {
+  border-radius: 8px;
+}
+textarea::placeholder {
+  color: #bbb;
+  font-style: italic;
+  padding-left: 3px;
 }

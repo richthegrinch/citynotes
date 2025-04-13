@@ -195,15 +195,15 @@ function EditableMarker({
             </small>
 
             <select className="mood-select-edit" value={mood} onChange={(e) => setMood(e.target.value)}>
-              <option value="all">All</option>
-              <option value="happy">☺️ Happy</option>
+              <option value="" disabled>Pick a Vibe</option>
+              <option value="happy">😊 Happy</option>
               <option value="sad">😢 Sad</option>
               <option value="lively">💃 Lively</option>
               <option value="calm">🧘‍♀️ Calm</option>
               <option value="romantic">💕 Romantic</option>
             </select>
             <br />
-            <button type="submit">Update</button>
+            <button className="update-button" type="submit">Update</button>
           </form>
         ) : (
           <div className="popup-text">
@@ -234,7 +234,7 @@ export default function App() {
   const [entries, setEntries] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [noteText, setNoteText] = useState("");
-  const [mood, setMood] = useState("happy");
+  const [mood, setMood] = useState("");
   const [editingId, setEditingId] = useState(null);
   const mapRef = useRef();
   const [minZoom, setMinZoom] = useState(2);
@@ -412,7 +412,7 @@ useEffect(() => {
 
   const resetForm = () => {
     setNoteText("");
-    setMood("happy");
+    setMood("");
     setTempMarker(null);
     setEditingId(null);
     setShowForm(false);
@@ -597,7 +597,7 @@ useEffect(() => {
             marginRight: "12px"
           }}
         >
-          Drop a Note 📜
+          🗒 Drop a Note 
         </button>
         <button
           style={{
@@ -710,6 +710,7 @@ useEffect(() => {
                 </small>
 
                 <select className="mood-select" value={mood} onChange={(e) => setMood(e.target.value)}>
+                  <option value="" disabled>Pick a Vibe</option>
                   <option value="happy">😊 Happy</option>
                   <option value="sad">😢 Sad</option>
                   <option value="lively">💃 Lively</option>
