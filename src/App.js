@@ -547,6 +547,7 @@ useEffect(() => {
     cursor: "pointer",
     whiteSpace: "nowrap",
     fontSize: "1rem",
+    boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)"
   }}
 >
   Drop a Note 📜

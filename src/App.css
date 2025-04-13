@@ -71,6 +71,10 @@ html, body, #root {
   max-width: 200px;
 }
 
+.leaflet-container a.leaflet-popup-close-button {
+  color:black;
+}
+
 .mood-select-edit {
   width: 95%;
   height: 10%;
@@ -78,17 +82,17 @@ html, body, #root {
   margin-top: 5px;
   padding: 1px;
   font-size: 14px;
-  border-radius: 6px;
+  border-radius: 0;
   border: 1px solid #ccc;
-  background-color: green;
+  background-color: white;
   font-family: "Segoe UI", sans-serif;
 }
 
 .mood-select {
-  background-color: green;
+  background-color: white;
   border-color: white;
   border: 1;
-  border-radius: 10%;
+  border-radius: 0%;
   position:relative;
   left: 8%;
   top: 4%;
@@ -115,10 +119,6 @@ html, body, #root {
 
 .textFilterInput::placeholder {
   color: black;
-}
-
-.leaflet-container a.leaflet-popup-close-button {
-  color:darkgray;
 }
 
 
