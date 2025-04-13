@@ -124,16 +124,20 @@ function EditableMarker({
   onEditClick,
   onDelete,
   onUpdate,
-  onClose,
   noteText,
   setNoteText,
   mood,
   setMood,
   moodIcons,
+  markerRefs,
 }) {
 
   const justOpenedRef = useRef(false);
-
+  useEffect(() => {
+    if (markerRefs.current && entry.id) {
+      markerRefs.current[entry.id] = markerRefs.current[entry.id] || {}; // Initialize if not already
+    }
+  }, [entry.id, markerRefs]);
   const handlePopupOpen = () => {
     console.log("Popup opened for entry", entry.id);
     justOpenedRef.current = true;
@@ -157,6 +161,11 @@ function EditableMarker({
       icon={moodIcons[entry.mood] || moodIcons.default}
       eventHandlers={{
         popupopen: handlePopupOpen,
+      }}
+      ref={(ref) => {
+        if (ref && entry.id) {
+          markerRefs.current[entry.id] = ref; // Store marker reference by note.id
+        }
       }}
     >
       <Popup open={isEditing}>
@@ -232,6 +241,7 @@ export default function App() {
   const [showDropNoteModal, setShowDropNoteModal] = useState(false);
   const [dontShowAgainChecked, setDontShowAgainChecked] = useState(false);
   const newMarkerRef = useRef(null);
+  const markerRefs = useRef({});
 
 
   useEffect(() => {
@@ -262,15 +272,48 @@ export default function App() {
     if (showForm) {
       document.addEventListener("mousedown", handleMouseDown);
       document.addEventListener("mouseup", handleMouseUp);
+
     }
-  
+
     return () => {
       document.removeEventListener("mousedown", handleMouseDown);
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [showForm, tempMarker]);
+
+  const exploreRandomNote = () => {
+    console.log(mapRef.current)
+    if (entries.length === 0 || !mapRef.current) return;
   
+    const randomIndex = Math.floor(Math.random() * entries.length);
+    const note = entries[randomIndex];
   
+    mapRef.current.setView([note.lat, note.lng], 19); // Zoom in
+  
+    const markerRef = markerRefs.current[note.id];
+    console.log("marker ref: ", markerRef)
+    if (markerRef) {
+      markerRef.openPopup(); // Trigger popup
+    }
+  };
+  
+
+useEffect(() => {
+  const calculateMinZoom = () => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const bounds = map.getBounds();
+    const worldBounds = L.latLngBounds([[-85, -180], [85, 180]]);
+
+    const requiredZoom = map.getBoundsZoom(worldBounds, false);
+    setMinZoom(requiredZoom);
+  };
+
+  if (mapRef.current) {
+    calculateMinZoom();
+  }
+}, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -494,6 +537,9 @@ export default function App() {
           [-85, -180],
           [85, 180],
         ]}
+        whenReady={(map) => {
+          mapRef.current = map.target; // ✅ map.target is the Leaflet map instance
+        }}
         maxBoundsViscosity={1.0} 
         whenCreated={(mapInstance) => {
           mapRef.current = mapInstance; // ✅ capture the map instance here
@@ -526,27 +572,44 @@ export default function App() {
           }}
         >
           <button
-  onClick={() => {
-    const hidePopup = sessionStorage.getItem("hideDropNotePopup") === "true";
-    if (hidePopup) {
-      setIsAdding(true);
-    } else {
-      setShowDropNoteModal(true);
-    }
-  }}
-  style={{
-    padding: "0.5rem 1rem",
-    background: "green",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-    fontSize: "1rem",
-  }}
->
-  Drop a Note
-</button>
+            onClick={() => {
+              const hidePopup = sessionStorage.getItem("hideDropNotePopup") === "true";
+              if (hidePopup) {
+                setIsAdding(true);
+              } else {
+                setShowDropNoteModal(true);
+              }
+            }}
+            style={{
+              padding: "0.5rem 1rem",
+              background: "green",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              fontSize: "1rem",
+            }}
+          >
+            Drop a Note 📜
+          </button>
+          <button
+            style={{
+              marginTop: "10px",
+              padding: "0.4rem 1rem",
+              background: entries.length === 0 ? "gray" : "blue",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: entries.length === 0 ? "not-allowed" : "pointer",
+              marginLeft: "10px",
+            }}
+            disabled={entries.length === 0}
+            onClick={exploreRandomNote}
+          >
+            🎲 Surprise Note
+          </button>
+
 
         </div>
 
@@ -572,6 +635,9 @@ export default function App() {
           <EditableMarker
             key={entry.id}
             entry={entry}
+            ref={(ref) => {
+              if (ref) markerRefs.current[entry.id] = ref;
+            }}
             isEditing={editingId === entry.id}
             onEditClick={() => {
               console.log("Edit clicked for entry", entry.id);
@@ -605,6 +671,7 @@ export default function App() {
             mood={mood}
             setMood={setMood}
             moodIcons={moodIcons}
+            markerRefs={markerRefs}
           />
         ))}
 
