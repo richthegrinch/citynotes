@@ -54,7 +54,76 @@ html, body, #root {
   height: 100%;
 }
 
+.leaflet-popup {
+  background-color: transparent !important; /* Removes default white bubble look */
+  box-shadow: none;
+}
+
+.leaflet-popup-content {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: #333;
+  padding: 10px;
+  margin: 0;
+  background-color: green;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  max-width: 200px;
+}
+
+.mood-select-edit {
+  width: 95%;
+  height: 10%;
+  margin-bottom:7px;
+  margin-top: 5px;
+  padding: 1px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: green;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.mood-select {
+  background-color: green;
+  border-color: white;
+  border: 1;
+  border-radius: 10%;
+  position:relative;
+  left: 8%;
+  top: 4%;
+  height:10
+}
+
+.save-button {
+  width: 40px;
+  height: 20px;
+  border-color: black;
+  border:0px;
+  border-radius: 10%;
+  padding: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 50;
+}
+
+.edit-button {
+  margin-right: 20%;
+
+}
+
+.textFilterInput::placeholder {
+  color: black;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color:darkgray;
+}
+
+
 .popup-text {
+  color: white;
   word-break: break-word;
   hyphens: auto;
   overflow-wrap: anywhere;

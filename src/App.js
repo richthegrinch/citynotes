@@ -193,12 +193,12 @@ function EditableMarker({
               //required
             />
             {/* <small style={{ color: noteText.length >= MAX_CHARACTERS || getWordCount(noteText) >= MAX_WORDS ? "red" : "gray" }}> */}
-            <small style={{ color: noteText.length >= MAX_CHARACTERS? "red" : "gray" }}>
+            <small style={{ color: noteText.length >= MAX_CHARACTERS? "red" : "white" }}>
               {noteText.length} / {MAX_CHARACTERS} characters
               {/* {getWordCount(noteText)} / {MAX_WORDS} words • {noteText.length} / {MAX_CHARACTERS} characters */}
             </small>
 
-            <select value={mood} onChange={(e) => setMood(e.target.value)}>
+            <select className="mood-select-edit" value={mood} onChange={(e) => setMood(e.target.value)}>
               <option value="all">All</option>
               <option value="happy">😊 Happy</option>
               <option value="sad">😢 Sad</option>
@@ -211,16 +211,16 @@ function EditableMarker({
           </form>
         ) : (
           <div className="popup-text">
-            <strong>{entry.mood}</strong>
+            <strong style={{ color: "white", fontSize: "13px"}}>
+              {entry.text}
+            </strong>
             <br />
-            {entry.text}
-            <br />
-            <small>{new Date(entry.timestamp).toLocaleString()}</small>
+            <small style={{fontSize: "10px"}}>{new Date(entry.timestamp).toLocaleString()}</small>
             <br />
             {entry.fromSession && (
               <>
-                <button onClick={onEditClick}>Edit</button>
-                <button onClick={onDelete}>Delete</button>
+                <button className="edit-button" onClick={onEditClick}>Edit</button>
+                <button className="delete-button" onClick={onDelete}>Delete</button>
               </>
             )}
           </div>
@@ -363,6 +363,7 @@ useEffect(() => {
       }}>
         <label htmlFor="moodFilter">Filter by Mood: </label>
         <select
+          style={{width:"18%"}}
           id="moodFilter"
           value={selectedMood}
           onChange={(e) => setSelectedMood(e.target.value)}
@@ -375,14 +376,15 @@ useEffect(() => {
           <option value="romantic">💘 Romantic</option>
         </select>
 
-        <label htmlFor="textFilter">Search Text:</label>
+        <label htmlFor="textFilter"> Search Text: </label>
         <input
+          className="textFilterInput"
           id="textFilter"
           type="text"
           placeholder="Search notes..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          style={{ padding: "4px", borderRadius: "4px", border: "none" }}
+          style={{ padding: "4px", borderRadius: "4px", border: "none"}}
         />
       </div>
 
@@ -524,13 +526,13 @@ useEffect(() => {
                   }}
                   //required
                   rows={3}
-                  style={{ width: "100%" }}
+                  style={{ width: "97%" }}
                 />
-                <small style={{ color: noteText.length >= MAX_CHARACTERS ? "red" : "gray" }}>
+                <small style={{ color: noteText.length >= MAX_CHARACTERS ? "red" : "white", fontSize:9, marginTop:0 }}>
                   {noteText.length} / {MAX_CHARACTERS} characters
                 </small>
 
-                <select value={mood} onChange={(e) => setMood(e.target.value)}>
+                <select className="mood-select" value={mood} onChange={(e) => setMood(e.target.value)}>
                   <option value="happy">😊 Happy</option>
                   <option value="sad">😢 Sad</option>
                   <option value="lively">🎉 Lively</option>
@@ -538,7 +540,7 @@ useEffect(() => {
                   <option value="romantic">🥰 Romantic</option>
                 </select>
                 <br />
-                <button type="submit">Save</button>
+                <button className="save-button" type="submit">Save</button>
               </form>
             </Popup>
           </Marker>
