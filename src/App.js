@@ -515,8 +515,8 @@ useEffect(() => {
           if (dontShowAgainChecked) {
             sessionStorage.setItem("hideDropNotePopup", "true");
           }
-          setIsAdding(true); // 🟢 Start the drop
-          setShowDropNoteModal(false); // 🔴 Close modal
+          setIsAdding(true); 
+          setShowDropNoteModal(false); 
         }}
       >
         Got it!
@@ -567,14 +567,18 @@ useEffect(() => {
           />
         </div>
 
-        <div
+        <div 
           style={{
             position: "absolute",
-            top: "3.5rem",
+            top: "5.5rem",
             right: "1rem",
             zIndex: 999,
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
           }}
         >
+          
         <button
           onClick={() => {
             const hidePopup = sessionStorage.getItem("hideDropNotePopup") === "true";
@@ -594,7 +598,7 @@ useEffect(() => {
             whiteSpace: "nowrap",
             fontSize: "1rem",
             boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)",
-            marginRight: "12px"
+            marginRight: "12px",
           }}
         >
           🗒 Drop a Note 
@@ -609,7 +613,7 @@ useEffect(() => {
             cursor: "pointer",
             whiteSpace: "nowrap",
             fontSize: "1rem",
-            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)"
+            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)",
           }}
           disabled={entries.length === 0}
            onClick={exploreRandomNote}
