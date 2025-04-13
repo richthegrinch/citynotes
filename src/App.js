@@ -215,7 +215,8 @@ function EditableMarker({
               {entry.text}
             </strong>
             <br />
-            <small style={{fontSize: "10px"}}>{new Date(entry.timestamp).toLocaleString()}</small>
+            <small style={{fontSize: "10px", marginRight:"20px"}}>{new Date(entry.timestamp).toLocaleDateString()}</small>
+            <small style={{fontSize: "10px", textAlign: "right"}}>{entry.lat.toFixed(4)}, {entry.lng.toFixed(4)}</small>
             <br />
             {entry.fromSession && (
               <>
