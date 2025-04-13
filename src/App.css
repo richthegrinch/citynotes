@@ -1,3 +1,7 @@
+* {
+  font-family: monospace !important;
+}
+
 .App {
   text-align: center;
 }
@@ -54,17 +58,9 @@ html, body, #root {
   height: 100%;
 }
 
-.popup-text {
-  word-break: break-word;
-  hyphens: auto;
-  overflow-wrap: anywhere;
-}
-
-/* .map-crosshair {
-  cursor: crosshair !important;
-  color: "red"
-} */
-
-.map-crosshair {
-  cursor: url("/cursor.cur") 16 16, auto !important;
+body {
+  background-color: rgb(148, 201, 96);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }

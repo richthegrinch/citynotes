@@ -240,6 +240,7 @@ export default function App() {
   const [mood, setMood] = useState("happy");
   const [editingId, setEditingId] = useState(null);
   const mapRef = useRef();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [minZoom, setMinZoom] = useState(2);
   const [selectedMood, setSelectedMood] = useState("all");
   const [searchText, setSearchText] = useState("");
@@ -367,26 +368,79 @@ useEffect(() => {
     resetForm();
   };
   
+  const toggleMenu = () => {
+    setIsMenuOpen(prev => !prev);
+  };
 
   return (
-    <div style={{ height: "100vh", width: "100vw" }}>
+    <div style={{ height: "100vh", width: "100vw"}}>
+      <button
+        onClick={toggleMenu}
+        style={{position: "absolute",
+                top: "1rem", // Keeps the button at the top
+                right: isMenuOpen ? "282px" : "1rem", // Shifts the button next to the menu when open
+                zIndex: 1100,
+                background: "rgb(148, 201, 96)",
+                color: "rgb(232, 250, 128)",
+                border: "none",
+                borderRadius: "5px",
+                padding: "0.5rem 1rem",
+                fontSize: "1.2rem",
+                cursor: "pointer"
+              }}
+      >
+        {isMenuOpen ? "✖" : "☰"}
+      </button>
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          height: "60%",
+          width: "250px",
+          backgroundColor: "rgb(232, 250, 128)",
+          color: "rgb(77, 77, 77)",
+          border: "5px solid rgb(148, 201, 96)",
+          transform: isMenuOpen ? "translateX(0)" : "translateX(100%)",
+          transition: "transform 0.3s ease-in-out",
+          zIndex: 1050,
+          boxShadow: isMenuOpen ? "-2px 0 10px rgb(232, 250, 128)" : "none",
+          padding: "1rem",
+          borderRadius: "10px 0 0 10px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+          alignItems: "left"
+        }}
+      >
+        <h3 style={{ fontWeight: "bold" }}>~~~ CityNote ~~~</h3>
+      </div>
+
+
+
+
       <div style={{
         position: "absolute",
         top: "10px",
         left: "80px",
         zIndex: 1000,
-        background: "white",
-        backgroundColor: "green",
+        background: "rgb(148, 201, 96)",
         padding: "8px",
         borderRadius: "8px",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-        color: "white",
+        border: "3px solid rgb(232, 250, 128)",
+        borderRadius: "10px",
+        boxShadow: "0 0 0 5px rgb(148, 201, 96)",
+        color: "rgb(77, 77, 77)",
       }}>
         <label htmlFor="moodFilter">Filter by Mood: </label>
         <select
           id="moodFilter"
           value={selectedMood}
           onChange={(e) => setSelectedMood(e.target.value)}
+          style={{backgroundColor: "rgb(232, 250, 128)",
+                  border: "1px solid #ccc",
+                  color: "rgb(77, 77, 77)"
+                }}
         >
           <option value="all">All</option>
           <option value="happy">😊 Happy</option>
@@ -395,78 +449,84 @@ useEffect(() => {
           <option value="calm">🌿 Calm</option>
           <option value="romantic">💘 Romantic</option>
         </select>
+        <div style={{ paddingTop: "10px" }}>
+          <label htmlFor="textFilter"> Search Text: </label>
+          <input
+            id="textFilter"
+            type="text"
+            placeholder="Search notes..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{padding: "4px",
+                    borderRadius: "4px",
+                    border: "none",
+                    backgroundColor: "rgb(232, 250, 128)",
+                    fontSize: "0.9rem"
+                  }}
+          />
+        </div>
 
-        <label htmlFor="textFilter">Search Text:</label>
-        <input
-          id="textFilter"
-          type="text"
-          placeholder="Search notes..."
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          style={{ padding: "4px", borderRadius: "4px", border: "none" }}
-        />
-
-{showDropNoteModal && (
-  <div
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 2000,
-    }}
-  >
-    <div
-      style={{
-        background: "white",
-        padding: "20px",
-        borderRadius: "8px",
-        maxWidth: "400px",
-        width: "90%",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-        textAlign: "center",
-      }}
-    >
-      <p style={{color: "black"}}>📍 Click anywhere on the map to drop a note!</p>
-      <label style={{ fontSize: "0.9rem", color: "black"}}>
-        <input
-          type="checkbox"
-          checked={dontShowAgainChecked}
-          onChange={(e) => setDontShowAgainChecked(e.target.checked)}
-        />
-        {" "}Don't show this again during this session
-      </label>
-      <br />
-      <button
+    {showDropNoteModal && (
+      <div
         style={{
-          marginTop: "10px",
-          padding: "0.4rem 1rem",
-          background: "green",
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-        }}
-        onClick={() => {
-          if (dontShowAgainChecked) {
-            sessionStorage.setItem("hideDropNotePopup", "true");
-          }
-          setIsAdding(true); // 🟢 Start the drop
-          setShowDropNoteModal(false); // 🔴 Close modal
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 2000,
         }}
       >
-        Got it!
-      </button>
-    </div>
-  </div>
-)}
-
+        <div
+          style={{
+            background: "white",
+            padding: "20px",
+            borderRadius: "8px",
+            maxWidth: "400px",
+            width: "90%",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+            textAlign: "center",
+          }}
+        >
+          <p style={{color: "black"}}>📍 Click anywhere on the map to drop a note!</p>
+          <label style={{ fontSize: "0.9rem", color: "black"}}>
+            <input
+              type="checkbox"
+              checked={dontShowAgainChecked}
+              onChange={(e) => setDontShowAgainChecked(e.target.checked)}
+            />
+            {" "}Don't show this again during this session
+          </label>
+          <br />
+          <button
+            style={{
+              marginTop: "10px",
+              padding: "0.4rem 1rem",
+              background: "green",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              if (dontShowAgainChecked) {
+                sessionStorage.setItem("hideDropNotePopup", "true");
+              }
+              setIsAdding(true); // 🟢 Start the drop
+              setShowDropNoteModal(false); // 🔴 Close modal
+            }}
+          >
+            Got it!
+          </button>
+        </div>
       </div>
+    )}
+
+  </div>
 
       
 
@@ -511,27 +571,28 @@ useEffect(() => {
           }}
         >
           <button
-  onClick={() => {
-    const hidePopup = sessionStorage.getItem("hideDropNotePopup") === "true";
-    if (hidePopup) {
-      setIsAdding(true);
-    } else {
-      setShowDropNoteModal(true);
-    }
-  }}
-  style={{
-    padding: "0.5rem 1rem",
-    background: "green",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-    fontSize: "1rem",
-  }}
->
-  Drop a Note 📜
-</button>
+            onClick={() => {
+              const hidePopup = sessionStorage.getItem("hideDropNotePopup") === "true";
+              if (hidePopup) {
+                setIsAdding(true);
+              } else {
+                setShowDropNoteModal(true);
+              }
+            }}
+            style={{
+              padding: "0.5rem 1rem",
+              background: "rgb(148, 201, 96)",
+              color: "rgb(77, 77, 77)",
+              border: "3px solid rgb(232, 250, 128)",
+              borderRadius: "10px",
+              boxShadow: "0 0 0 5px rgb(148, 201, 96)",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              fontSize: "1rem",
+            }}
+          >
+            add note 📜
+          </button>
 
         </div>
 
