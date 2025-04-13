@@ -593,21 +593,23 @@ useEffect(() => {
             cursor: "pointer",
             whiteSpace: "nowrap",
             fontSize: "1rem",
-            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)"
+            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)",
+            marginRight: "12px"
           }}
         >
           Drop a Note 📜
         </button>
         <button
           style={{
-            marginTop: "10px",
-            padding: "0.4rem 1rem",
-            background: entries.length === 0 ? "gray" : "blue",
+            padding: "0.5rem 1rem",
+            background: "green",
             color: "white",
             border: "none",
-            borderRadius: "6px",
-            cursor: entries.length === 0 ? "not-allowed" : "pointer",
-            marginLeft: "10px",
+            borderRadius: "8px",
+            cursor: "pointer",
+            whiteSpace: "nowrap",
+            fontSize: "1rem",
+            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)"
           }}
           disabled={entries.length === 0}
            onClick={exploreRandomNote}
