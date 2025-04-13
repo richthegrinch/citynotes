@@ -203,7 +203,20 @@ function EditableMarker({
               <option value="romantic">💕 Romantic</option>
             </select>
             <br />
-            <button type="submit">Update</button>
+            <button
+              type="submit"
+              style={{padding: "0.5rem 1rem",
+                      background: "rgb(232, 250, 128)",
+                      border: "rgb(232, 250, 128)",
+                      color: "rgb(77,77,77)",
+                      borderRadius: "10px",
+                      boxShadow: "rgb(232, 250, 128)",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                      fontSize: "1rem"}}
+            >
+                Update
+            </button>
           </form>
         ) : (
           <div className="popup-text">
@@ -742,7 +755,7 @@ useEffect(() => {
           attribution="&copy; OpenStreetMap contributors"
         />
 
-        {/* <GeocoderControl position="topleft"/> */}
+        {/* <GeocoderControl position="bottomleft"/> */}
 
         {isAdding && (
           <AddMarkerOnClick
@@ -829,7 +842,7 @@ useEffect(() => {
                   rows={3}
                   style={{ width: "97%" }}
                 />
-                <small style={{ color: noteText.length >= MAX_CHARACTERS ? "red" : "white", fontSize:9, marginTop:0 }}>
+                <small style={{color: noteText.length >= MAX_CHARACTERS ? "red" : "white", fontSize:9, marginTop:0 }}>
                   {noteText.length} / {MAX_CHARACTERS} characters
                 </small>
 

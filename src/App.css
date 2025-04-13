@@ -65,15 +65,14 @@ html, body, #root {
 }
 
 .leaflet-popup-content {
-  font-family: "Segoe UI", sans-serif;
   font-size: 14px;
-  color: #333;
+  color: rgb(77,77,77);
   padding: 10px;
   margin: 0;
-  background-color: green;
+  background-color: rgb(148, 201, 96);
   border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-  max-width: 200px;
+  box-shadow: 0 2px 12px rgb(232, 250, 128);
+  max-width: 300px !important;
 }
 
 .leaflet-container a.leaflet-popup-close-button {
@@ -89,13 +88,12 @@ html, body, #root {
   font-size: 14px;
   border-radius: 0;
   border: 1px solid #ccc;
-  background-color: white;
-  font-family: "Segoe UI", sans-serif;
+  background-color: rgb(232, 250, 128);
 }
 
 .mood-select {
-  background-color: white;
-  border-color: white;
+  background-color: rgb(232, 250, 128);
+  border-color: rgb(232, 250, 128);
   border: 1;
   border-radius: 0%;
   position:relative;
@@ -107,19 +105,41 @@ html, body, #root {
 .save-button {
   width: 40px;
   height: 20px;
-  border-color: black;
+  color: rgb(77,77,77);
+  border-color: rgb(232, 250, 128);
+  padding: 12px 30px;
   border:0px;
-  border-radius: 10%;
-  padding: 20;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 50;
+  background-color: rgb(232, 250, 128);
+  margin: 8px 0;
 }
 
 .edit-button {
   margin-right: 20%;
+  background-color: rgb(232, 250, 128);
+  border-color: rgb(232, 250, 128);
+  color: rgb(77,77,77);
+  border-radius: 8px;
+  margin: 8px;
+  padding: 5px 20px;
+}
 
+.delete-button {
+  background-color: rgb(254, 105, 105);
+  border-color: rgb(254, 105, 105);
+  color: rgb(77,77,77);
+  border-radius: 8px;
+  padding: 5px 20px;
+}
+
+.update-button {
+  background-color: rgb(232, 250, 128);
+  color: rgb(77,77,77);
+  border-radius: 8px;
+  padding: 5px 20px;
 }
 
 .textFilterInput::placeholder {
@@ -129,10 +149,15 @@ html, body, #root {
 
 .popup-text {
   color: white;
+  font-size: 24px; /* Larger text */
+  font-weight: 400; /* Regular weight */
+  line-height: 1.5; /* Improve readability */
   word-break: break-word;
   hyphens: auto;
   overflow-wrap: anywhere;
+  margin: 5px 0; /* Add some spacing around text */
 }
+
 
 /* .map-crosshair {
   cursor: crosshair !important;
@@ -141,4 +166,13 @@ html, body, #root {
 
 .map-crosshair {
   cursor: url("/cursor.cur") 16 16, auto !important;
+}
+
+textarea {
+  border-radius: 8px;
+}
+textarea::placeholder {
+  color: #bbb;
+  font-style: italic;
+  padding-left: 3px;
 }
