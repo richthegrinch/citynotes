@@ -12,11 +12,9 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
-
 //location search
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import "leaflet-control-geocoder";
-
 //firebase
 import { db } from "./firebase";
 import {
@@ -34,11 +32,8 @@ import chillIcon from "./assets/relaxed.gif";
 import flirtyIcon from "./assets/flirty.gif";
 
 
-//CONSTANTS
-//const MAX_WORDS = 12;
 const MAX_CHARACTERS = 70;
 
-// icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
@@ -46,7 +41,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-// icons pt. 2
+
 const moodIcons = {
   happy: new L.Icon({
     iconUrl: happyIcon,
@@ -85,14 +80,6 @@ const moodIcons = {
   }),
 };
 
-
-//word limit
-// const getWordCount = (text) => {
-//   return text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
-// };
-
-
-
 //functions
 
 //search bar
@@ -120,7 +107,7 @@ function GeocoderControl() {
   return null;
 }
 
-//add pin
+//add pin on click
 function AddMarkerOnClick({ isAdding, onMapClick }) {
   useMapEvent("click", (e) => {
     if (isAdding) {
@@ -144,22 +131,25 @@ function EditableMarker({
   setMood,
   moodIcons,
 }) {
+
   const justOpenedRef = useRef(false);
+
   const handlePopupOpen = () => {
     console.log("Popup opened for entry", entry.id);
     justOpenedRef.current = true;
   };
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    if (
-      // getWordCount(noteText) > MAX_WORDS ||
-      noteText.length > MAX_CHARACTERS
-    ) {
-      alert("Your entry is too long. Please shorten it.");
-      return;
-    }
-    onUpdate(noteText, mood);
-  };
+
+  // const handleFormSubmit = (e) => {
+  //   e.preventDefault();
+  //   if (
+  //     // getWordCount(noteText) > MAX_WORDS ||
+  //     noteText.length > MAX_CHARACTERS
+  //   ) {
+  //     alert("Your entry is too long. Please shorten it.");
+  //     return;
+  //   }
+  //   onUpdate(noteText, mood);
+  // };
 
   return (
     <Marker
@@ -182,9 +172,7 @@ function EditableMarker({
               value={noteText}
               onChange={(e) => {
                 const text = e.target.value;
-                // const words = getWordCount(text);
                 if (text.length <= MAX_CHARACTERS) {
-                //if (words <= MAX_WORDS && text.length <= MAX_CHARACTERS) {
                   setNoteText(text);
                 }
               }}
@@ -192,19 +180,17 @@ function EditableMarker({
               style={{ width: "100%" }}
               //required
             />
-            {/* <small style={{ color: noteText.length >= MAX_CHARACTERS || getWordCount(noteText) >= MAX_WORDS ? "red" : "gray" }}> */}
             <small style={{ color: noteText.length >= MAX_CHARACTERS? "red" : "gray" }}>
               {noteText.length} / {MAX_CHARACTERS} characters
-              {/* {getWordCount(noteText)} / {MAX_WORDS} words • {noteText.length} / {MAX_CHARACTERS} characters */}
             </small>
 
             <select value={mood} onChange={(e) => setMood(e.target.value)}>
               <option value="all">All</option>
-              <option value="happy">😊 Happy</option>
+              <option value="happy">☺️ Happy</option>
               <option value="sad">😢 Sad</option>
               <option value="lively">💃 Lively</option>
-              <option value="calm">🌿 Calm</option>
-              <option value="romantic">💘 Romantic</option>
+              <option value="calm">🧘‍♀️ Calm</option>
+              <option value="romantic">💕 Romantic</option>
             </select>
             <br />
             <button type="submit">Update</button>
@@ -248,36 +234,56 @@ export default function App() {
   const newMarkerRef = useRef(null);
 
 
-
-useEffect(() => {
-  const calculateMinZoom = () => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    const bounds = map.getBounds();
-    const worldBounds = L.latLngBounds([[-85, -180], [85, 180]]);
-
-    const requiredZoom = map.getBoundsZoom(worldBounds, false);
-    setMinZoom(requiredZoom);
-  };
-
-  if (mapRef.current) {
-    calculateMinZoom();
-  }
-}, []);
-
-useEffect(() => {
-  const handleResize = () => {
-    if (mapRef.current) {
-      const worldBounds = L.latLngBounds([[-85, -180], [85, 180]]);
-      const zoom = mapRef.current.getBoundsZoom(worldBounds, false);
-      setMinZoom(zoom);
+  useEffect(() => {
+    let mouseDownTarget = null;
+    let mouseDownX = 0;
+    let mouseDownY = 0;
+  
+    const handleMouseDown = (e) => {
+      mouseDownTarget = e.target;
+      mouseDownX = e.clientX;
+      mouseDownY = e.clientY;
+    };
+  
+    const handleMouseUp = (e) => {
+      const popup = document.querySelector(".leaflet-popup-content");
+  
+      const dx = Math.abs(e.clientX - mouseDownX);
+      const dy = Math.abs(e.clientY - mouseDownY);
+      const movedFar = dx > 5 || dy > 5; // adjust threshold as needed
+  
+      if (popup && !popup.contains(e.target) && !movedFar) {
+        if (showForm && tempMarker) {
+          resetForm(); // user clicked outside, not dragged
+        }
+      }
+    };
+  
+    if (showForm) {
+      document.addEventListener("mousedown", handleMouseDown);
+      document.addEventListener("mouseup", handleMouseUp);
     }
-  };
+  
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [showForm, tempMarker]);
+  
+  
 
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-}, []);
+  useEffect(() => {
+    const handleResize = () => {
+      if (mapRef.current) {
+        const worldBounds = L.latLngBounds([[-85, -180], [85, 180]]);
+        const zoom = mapRef.current.getBoundsZoom(worldBounds, false);
+        setMinZoom(zoom);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchEntries = async () => {
@@ -321,7 +327,6 @@ useEffect(() => {
   const handleSave = async (e) => {
     e.preventDefault();
   
-    // const wordCount = getWordCount(noteText);
     const charCount = noteText.length;
   
     if (charCount > MAX_CHARACTERS) {
@@ -330,16 +335,7 @@ useEffect(() => {
       );
       return; 
     }
-  
-    // if (wordCount > MAX_WORDS || charCount > MAX_CHARACTERS) {
-    //   alert(
-    //     `Your entry is too long.\n\nWord limit: ${wordCount}/${MAX_WORDS}\nCharacter limit: ${charCount}/${MAX_CHARACTERS}`
-    //   );
-    //   return;
-    // }
-  
-    
-    
+     
     const newEntry = {
       lat: tempMarker.lat,
       lng: tempMarker.lng,
@@ -408,8 +404,8 @@ useEffect(() => {
           <option value="happy">😊 Happy</option>
           <option value="sad">😢 Sad</option>
           <option value="lively">💃 Lively</option>
-          <option value="calm">🌿 Calm</option>
-          <option value="romantic">💘 Romantic</option>
+          <option value="calm">🧘‍♀️ Calm</option>
+          <option value="romantic">💕 Romantic</option>
         </select>
 
         <label htmlFor="textFilter">Search Text:</label>
@@ -455,7 +451,7 @@ useEffect(() => {
           checked={dontShowAgainChecked}
           onChange={(e) => setDontShowAgainChecked(e.target.checked)}
         />
-        {" "}Don't show this again during this session
+        {" "}Don't show this popup again
       </label>
       <br />
       <button
@@ -499,6 +495,9 @@ useEffect(() => {
           [85, 180],
         ]}
         maxBoundsViscosity={1.0} 
+        whenCreated={(mapInstance) => {
+          mapRef.current = mapInstance; // ✅ capture the map instance here
+        }}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -546,7 +545,7 @@ useEffect(() => {
     fontSize: "1rem",
   }}
 >
-  Drop a Note 📜
+  Drop a Note
 </button>
 
         </div>
@@ -615,10 +614,11 @@ useEffect(() => {
               onClose={resetForm}
               autoClose={false}
               closeOnClick={false}
+              //closeButton={true}
             >
               <form onSubmit={handleSave}>
                 <textarea
-                  placeholder="Your memory..."
+                  placeholder="Leave a note"
                   value={noteText}
                   onChange={(e) => {
                     const text = e.target.value;
@@ -638,9 +638,9 @@ useEffect(() => {
                 <select value={mood} onChange={(e) => setMood(e.target.value)}>
                   <option value="happy">😊 Happy</option>
                   <option value="sad">😢 Sad</option>
-                  <option value="lively">🎉 Lively</option>
-                  <option value="calm">🌿 Calm</option>
-                  <option value="romantic">🥰 Romantic</option>
+                  <option value="lively">💃 Lively</option>
+                  <option value="calm">🧘‍♀️ Calm</option>
+                  <option value="romantic">💕 Romantic</option>
                 </select>
                 <br />
                 <button type="submit">Save</button>
