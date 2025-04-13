@@ -245,6 +245,8 @@ export default function App() {
   const [searchText, setSearchText] = useState("");
   const [showDropNoteModal, setShowDropNoteModal] = useState(false);
   const [dontShowAgainChecked, setDontShowAgainChecked] = useState(false);
+  const newMarkerRef = useRef(null);
+
 
 
 useEffect(() => {
@@ -310,6 +312,12 @@ useEffect(() => {
     };
   }, [isAdding]);
 
+  useEffect(() => {
+    if (showForm && tempMarker) {
+      openNewMarkerPopup();
+    }
+  }, [showForm, tempMarker]);
+
   const handleSave = async (e) => {
     e.preventDefault();
   
@@ -352,6 +360,14 @@ useEffect(() => {
     resetForm();
   };
   
+
+  const openNewMarkerPopup = () => {
+    if (newMarkerRef.current) {
+      setTimeout(() => {
+        newMarkerRef.current.openPopup();
+      }, 100); // Slight delay to ensure DOM mount
+    }
+  };
 
   const resetForm = () => {
     setNoteText("");
@@ -594,7 +610,7 @@ useEffect(() => {
         ))}
 
         {showForm && tempMarker && (
-          <Marker position={tempMarker} icon={moodIcons[mood] || moodIcons.default}>
+          <Marker position={tempMarker} icon={moodIcons[mood] || moodIcons.default} ref={newMarkerRef} >
             <Popup
               onClose={resetForm}
               autoClose={false}
