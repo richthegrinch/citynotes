@@ -237,6 +237,8 @@ export default function App() {
   const [mood, setMood] = useState("happy");
   const [editingId, setEditingId] = useState(null);
   const mapRef = useRef();
+  const [isMenuOpen, setIsMenuOpen] = useState(true);
+  const [showHowToUseModal, setShowHowToUseModal] = useState(false);
   const [minZoom, setMinZoom] = useState(2);
   const [selectedMood, setSelectedMood] = useState("all");
   const [searchText, setSearchText] = useState("");
@@ -424,108 +426,294 @@ useEffect(() => {
     resetForm();
   };
   
+  const toggleMenu = () => {
+    setIsMenuOpen(prev => !prev);
+  };
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
-      <div style={{
-        position: "absolute",
-        top: "10px",
-        left: "80px",
-        zIndex: 1000,
-        background: "white",
-        backgroundColor: "green",
-        padding: "8px",
-        borderRadius: "8px",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-        color: "white",
-      }}>
-        <label htmlFor="moodFilter">Filter by Mood: </label>
-        <select
-          style={{width:"18%"}}
-          id="moodFilter"
-          value={selectedMood}
-          onChange={(e) => setSelectedMood(e.target.value)}
-        >
-          <option value="all">All</option>
-          <option value="happy">😊 Happy</option>
-          <option value="sad">😢 Sad</option>
-          <option value="lively">💃 Lively</option>
-          <option value="calm">🧘‍♀️ Calm</option>
-          <option value="romantic">💕 Romantic</option>
-        </select>
-
-        <label htmlFor="textFilter"> Search Text: </label>
-        <input
-          className="textFilterInput"
-          id="textFilter"
-          type="text"
-          placeholder="Search notes..."
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          style={{ padding: "4px", borderRadius: "4px", border: "none"}}
-        />
-
-{showDropNoteModal && (
-  <div
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 2000,
-    }}
-  >
-    <div
-      style={{
-        background: "white",
-        padding: "20px",
-        borderRadius: "8px",
-        maxWidth: "400px",
-        width: "90%",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-        textAlign: "center",
-      }}
-    >
-      <p style={{color: "black"}}>📍 Click anywhere on the map to drop a note!</p>
-      <label style={{ fontSize: "0.9rem", color: "black"}}>
-        <input
-          type="checkbox"
-          checked={dontShowAgainChecked}
-          onChange={(e) => setDontShowAgainChecked(e.target.checked)}
-        />
-        {" "}Don't show this popup again
-      </label>
-      <br />
       <button
+        onClick={toggleMenu}
+        style={{position: "absolute",
+                top: "0.5rem",
+                right: isMenuOpen ? "331px" : "1rem",
+                zIndex: 1100,
+                background: "rgb(148, 201, 96)",
+                color: "rgb(232, 250, 128)",
+                border: "none",
+                borderRadius: "5px",
+                padding: "0.5rem 1rem",
+                fontSize: "1.2rem",
+                cursor: "pointer"
+              }}
+      >
+        {isMenuOpen ? "✖" : "☰"}
+      </button>
+      <div
         style={{
-          marginTop: "10px",
-          padding: "0.4rem 1rem",
-          background: "green",
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-        }}
-        onClick={() => {
-          if (dontShowAgainChecked) {
-            sessionStorage.setItem("hideDropNotePopup", "true");
-          }
-          setIsAdding(true); // 🟢 Start the drop
-          setShowDropNoteModal(false); // 🔴 Close modal
+          position: "absolute",
+          top: 0,
+          right: 0,
+          height: "63%",
+          width: "305px",
+          backgroundColor: "rgb(232, 250, 128)",
+          color: "rgb(77, 77, 77)",
+          border: "5px solid rgb(148, 201, 96)",
+          transform: isMenuOpen ? "translateX(0)" : "translateX(100%)",
+          transition: "transform 0.3s ease-in-out",
+          zIndex: 1050,
+          boxShadow: isMenuOpen ? "-2px 0 10px rgb(232, 250, 128)" : "none",
+          padding: "0.25rem 0.5rem 0.5rem 0.5rem",
+          borderRadius: "10px 0 0 10px",
+          display: "flex",
+          gap: "1rem",
+          alignItems: "center",
+          flexDirection: "column",
         }}
       >
-        Got it!
-      </button>
-    </div>
-  </div>
-)}
+        <h1 style={{ fontWeight: "bold" }}>~~~ CityNote ~~~</h1>
+        
+        <div>
+          <button
+            onClick={() => {
+              setShowHowToUseModal(true);
+            }}
+            style={{padding: "0.5rem 1rem",
+                    background: "rgb(148, 201, 96)",
+                    color: "rgb(77, 77, 77)",
+                    border: "3px solid rgb(232, 250, 128)",
+                    borderRadius: "10px",
+                    boxShadow: "0 0 0 5px rgb(148, 201, 96)",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    fontSize: "1rem"
+                  }}
+          >
+            how to use?
+          </button>
+        </div>
+
+        <h2 style={{margin: "0.25rem 0" }}>~~~</h2>
+
+
+        <div style={{paddingTop: "0.5rem"}}>
+          <button
+            onClick={() => {
+              const hidePopup = sessionStorage.getItem("hideDropNotePopup") === "true";
+              if (hidePopup) {
+                setIsAdding(true);
+              } else {
+                setShowDropNoteModal(true);
+              }
+            }}
+            style={{padding: "0.5rem 1rem",
+                    background: "rgb(148, 201, 96)",
+                    color: "rgb(77, 77, 77)",
+                    border: "3px solid rgb(232, 250, 128)",
+                    borderRadius: "10px",
+                    boxShadow: "0 0 0 5px rgb(148, 201, 96)",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    fontSize: "1rem"
+                  }}
+          >
+            add note 📜
+          </button>
+        </div>
+
+        <div style={{paddingTop: "0.5rem"}}>
+        <button
+          style={{padding: "0.5rem 1rem",
+                  background: "rgb(148, 201, 96)",
+                  color: "rgb(77, 77, 77)",
+                  border: "3px solid rgb(232, 250, 128)",
+                  borderRadius: "10px",
+                  boxShadow: "0 0 0 5px rgb(148, 201, 96)",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  fontSize: "1rem"
+                }}
+          disabled={entries.length === 0}
+          onClick={exploreRandomNote}
+        >
+          surprise note 🎲
+        </button>
+        </div>
+
+        <div style={{paddingTop: "0.5rem"}}>
+          <div
+            style={{zIndex: 1000,
+                    background: "rgb(148, 201, 96)",
+                    padding: "8px",
+                    borderRadius: "8px",
+                    border: "3px solid rgb(232, 250, 128)",
+                    borderRadius: "10px",
+                    boxShadow: "0 0 0 5px rgb(148, 201, 96)",
+                    color: "rgb(77, 77, 77)",
+                  }}
+            >
+              <label htmlFor="moodFilter">filter by mood: </label>
+              <select
+                id="moodFilter"
+                value={selectedMood}
+                onChange={(e) => setSelectedMood(e.target.value)}
+                style={{width:"18%",
+                        backgroundColor: "rgb(232, 250, 128)",
+                        border: "1px solid #ccc",
+                        color: "rgb(77, 77, 77)"
+                      }}
+              >
+                <option value="all">all</option>
+                <option value="happy">😊 happy</option>
+                <option value="sad">😢 sad</option>
+                <option value="lively">💃 lively</option>
+                <option value="calm">🧘‍♀️ calm</option>
+                <option value="romantic">💕 romantic</option>
+              </select>
+
+          <div style={{ paddingTop: "10px" }}>
+            <label htmlFor="textFilter"> search text: </label>
+            <input
+              id="textFilter"
+              type="text"
+              placeholder="search notes..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{padding: "4px",
+                      borderRadius: "4px",
+                      border: "none",
+                      backgroundColor: "rgb(232, 250, 128)",
+                      fontSize: "0.9rem"
+                    }}
+            />
+          </div>
+          </div>
+        </div>
+
+        <h2 style={{margin: "0.25rem 0" }}>~~~</h2>
 
       </div>
+
+
+      {showDropNoteModal && (
+        <div
+          style={{position: "fixed",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 2000,
+                }}
+        >
+          <div
+            style={{background: "rgb(148, 201, 96)",
+                    border: "5px solid rgb(232, 250, 128)",
+                    padding: "20px",
+                    borderRadius: "8px",
+                    maxWidth: "400px",
+                    width: "90%",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                    textAlign: "center",
+                  }}
+          >
+            <p style={{color: "black"}}>📍 Click anywhere on the map to drop a note!</p>
+            <label style={{ fontSize: "0.9rem", color: "rgb(77,77,77)"}}>
+              <input
+                type="checkbox"
+                checked={dontShowAgainChecked}
+                onChange={(e) => setDontShowAgainChecked(e.target.checked)}
+              />
+              {" "}Don't show this popup again
+            </label>
+            <br />
+          <div style={{paddingTop: "1rem"}}>
+          <button
+            style={{padding: "0.5rem 1rem",
+                    background: "rgb(232, 250, 128)",
+                    color: "rgb(77, 77, 77)",
+                    border: "3px solid rgb(148, 201, 96)",
+                    borderRadius: "10px",
+                    boxShadow: "0 0 0 5px rgb(232, 250, 128)",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    fontSize: "1rem",
+                  }}
+            onClick={() => {
+              if (dontShowAgainChecked) {
+                sessionStorage.setItem("hideDropNotePopup", "true");
+              }
+              setIsAdding(true); // 🟢 Start the drop
+              setShowDropNoteModal(false); // 🔴 Close modal
+            }}
+          >
+            Got it!
+          </button>
+          </div>
+          </div>
+        </div>
+      )}
+
+      {showHowToUseModal && (
+        <div
+          style={{position: "fixed",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 2000,
+                }}
+        >
+        <div
+          style={{background: "rgb(148, 201, 96)",
+                  border: "5px solid rgb(232, 250, 128)",
+                  padding: "20px",
+                  borderRadius: "8px",
+                  maxWidth: "400px",
+                  width: "90%",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                  textAlign: "center",
+            }}
+        >
+          <p style={{ color: "black" }}>
+            Hi! 🗺️ Welcome to CityNote!<br /><br />
+            To view a note, just click it! You can filter notes using the filter, or search for a specific caption. <br />
+            The suprise note button will take you to a random note. <br /><br />
+            To add a note, click add note, then anywhere on the map. To add a caption, click the note again and add your caption or change the mood emoji.
+            You can edit a note while you're here, but once you leave and come back you won't be able to, so write wisely!<br />
+          </p>
+          <div style={{ paddingTop: "1rem" }}>
+            <button
+              style={{
+                padding: "0.5rem 1rem",
+                background: "rgb(232, 250, 128)",
+                color: "rgb(77, 77, 77)",
+                border: "3px solid rgb(148, 201, 96)",
+                borderRadius: "10px",
+                boxShadow: "0 0 0 5px rgb(232, 250, 128)",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                fontSize: "1rem",
+              }}
+              onClick={() => {
+                setShowHowToUseModal(false);
+              }}
+            >
+              Great!
+            </button>
+          </div>
+          </div>
+        </div>
+      )}
+
+
 
       
 
@@ -554,71 +742,7 @@ useEffect(() => {
           attribution="&copy; OpenStreetMap contributors"
         />
 
-        <div
-          style={{
-            position: "absolute",
-            top: "1rem",
-            right: "1rem",
-            zIndex: 1000,
-          }}
-        >
-          <GeocoderControl
-            position="topright"
-          />
-        </div>
-
-        <div
-          style={{
-            position: "absolute",
-            top: "3.5rem",
-            right: "1rem",
-            zIndex: 999,
-          }}
-        >
-        <button
-          onClick={() => {
-            const hidePopup = sessionStorage.getItem("hideDropNotePopup") === "true";
-            if (hidePopup) {
-              setIsAdding(true);
-            } else {
-              setShowDropNoteModal(true);
-            }
-          }}
-          style={{
-            padding: "0.5rem 1rem",
-            background: "green",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            whiteSpace: "nowrap",
-            fontSize: "1rem",
-            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)",
-            marginRight: "12px"
-          }}
-        >
-          Drop a Note 📜
-        </button>
-        <button
-          style={{
-            padding: "0.5rem 1rem",
-            background: "green",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            whiteSpace: "nowrap",
-            fontSize: "1rem",
-            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)"
-          }}
-          disabled={entries.length === 0}
-           onClick={exploreRandomNote}
-          >
-            🎲 Surprise Note
-        </button>
-
-
-        </div>
+        {/* <GeocoderControl position="topleft"/> */}
 
         {isAdding && (
           <AddMarkerOnClick
