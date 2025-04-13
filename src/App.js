@@ -83,7 +83,7 @@ const moodIcons = {
 //functions
 
 //search bar
-function GeocoderControl() {
+function GeocoderControl({position = 'topleft'}) {
   const map = useMap();
 
   useEffect(() => {
@@ -91,6 +91,7 @@ function GeocoderControl() {
 
     const geocoder = L.Control.geocoder({
       defaultMarkGeocode: false,
+      position: position,
     })
       .on("markgeocode", function (e) {
         const bbox = e.geocode.bbox;
@@ -102,7 +103,7 @@ function GeocoderControl() {
     return () => {
       geocoder.remove();
     };
-  }, [map]);
+  }, [map, position]);
 
   return null;
 }
@@ -449,13 +450,13 @@ useEffect(() => {
         onClick={toggleMenu}
         style={{position: "absolute",
                 top: "0.5rem",
-                right: isMenuOpen ? "331px" : "1rem",
+                right: isMenuOpen ? "26vw" : "1rem",
                 zIndex: 1100,
                 background: "rgb(148, 201, 96)",
                 color: "rgb(232, 250, 128)",
                 border: "none",
                 borderRadius: "5px",
-                padding: "0.5rem 1rem",
+                padding: "1.2vh 1vw",
                 fontSize: "1.2rem",
                 cursor: "pointer"
               }}
@@ -467,8 +468,8 @@ useEffect(() => {
           position: "absolute",
           top: 0,
           right: 0,
-          height: "63%",
-          width: "305px",
+          height: "70vh",
+          width: "24vw",
           backgroundColor: "rgb(232, 250, 128)",
           color: "rgb(77, 77, 77)",
           border: "5px solid rgb(148, 201, 96)",
@@ -476,7 +477,7 @@ useEffect(() => {
           transition: "transform 0.3s ease-in-out",
           zIndex: 1050,
           boxShadow: isMenuOpen ? "-2px 0 10px rgb(232, 250, 128)" : "none",
-          padding: "0.25rem 0.5rem 0.5rem 0.5rem",
+          padding: "0.25vh 0.5vw 0.5vh 0.5vw",
           borderRadius: "10px 0 0 10px",
           display: "flex",
           gap: "1rem",
@@ -603,7 +604,7 @@ useEffect(() => {
           </div>
         </div>
 
-        <h2 style={{margin: "0.25rem 0" }}>~~~</h2>
+        {/* <h2 style={{margin: "0.25rem 0" }}>~~~</h2> */}
 
       </div>
 
@@ -755,7 +756,7 @@ useEffect(() => {
           attribution="&copy; OpenStreetMap contributors"
         />
 
-        {/* <GeocoderControl position="bottomleft"/> */}
+        <GeocoderControl position="topleft"/>
 
         {isAdding && (
           <AddMarkerOnClick
